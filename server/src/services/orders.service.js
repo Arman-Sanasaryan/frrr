@@ -1,10 +1,11 @@
 const Order = require("../models/order.model");
 
-async function createOrder({ cart }) {
+async function createOrder({ cart, userId }) {
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   const order = new Order({
     items: cart,
-    total
+    total,
+    userId
   });
   await order.save();
   return order;

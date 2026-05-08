@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Order = mongoose.model("Order", {
   items: Array,
   total: Number,
+  userId: String,
   status: { type: String, default: "новый" },
   createdAt: { type: Date, default: Date.now }
 });

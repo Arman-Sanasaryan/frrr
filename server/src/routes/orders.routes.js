@@ -15,8 +15,8 @@ function createOrdersRouter({ auth, stripe, staticBaseUrl }) {
     next();
   });
 
-  router.get("/my-orders", listMyOrdersController);
-  router.post("/create-order", createOrderController);
+  router.get("/my-orders", auth, listMyOrdersController);
+  router.post("/create-order", auth, createOrderController);
   router.get("/orders", auth, listOrdersController);
   router.put("/order/:id", auth, updateOrderStatusController);
 

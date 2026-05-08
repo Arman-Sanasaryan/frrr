@@ -7,7 +7,7 @@ const {
 
 async function createOrderController(req, res) {
   const { cart } = req.body;
-  await createOrder({ cart });
+  await createOrder({ cart, userId: req.user.id });
   const session = await req.stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: cart.map(item => ({

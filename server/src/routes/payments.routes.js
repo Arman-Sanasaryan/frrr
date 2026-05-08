@@ -17,7 +17,7 @@ function createPaymentsRouter({ stripe, stripeWebhookSecret, publicBaseUrl }) {
 
   router.post("/subscribe", subscribeController);
   router.post("/create-checkout-session", createCheckoutSessionController);
-  router.post("/webhook", express.raw({ type: "application/json" }), webhookController);
+  router.post("/webhook", webhookController);
 
   return router;
 }

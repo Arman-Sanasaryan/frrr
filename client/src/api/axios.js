@@ -1,29 +1,41 @@
 import axios from "axios";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+
 const api = axios.create({
-  baseURL: "http://localhost:3000"
+  baseURL: API_BASE_URL
 });
 
 api.interceptors.request.use(config => {
   const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
 api.interceptors.response.use(
   res => res,
   async err => {
+    if (!err.response || err.config?._retry) {
+      throw err;
+    }
+
     if (err.response.status === 401) {
       const refresh = localStorage.getItem("refresh");
+      if (!refresh) {
+        throw err;
+      }
 
-      const res = await axios.post("http://localhost:3000/refresh", {
+      const res = await axios.post(`${API_BASE_URL}/refresh`, {
         refreshToken: refresh
       });
 
       localStorage.setItem("token", res.data.token);
-      err.config.headers.Authorization = res.data.token;
+      err.config._retry = true;
+      err.config.headers.Authorization = `Bearer ${res.data.token}`;
 
-      return axios(err.config);
+      return api(err.config);
     }
     throw err;
   }

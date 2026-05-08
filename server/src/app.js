@@ -7,7 +7,7 @@ const { createOrdersRouter } = require("./routes/orders.routes");
 const { createProductsRouter } = require("./routes/products.routes");
 const { createReviewsRouter } = require("./routes/reviews.routes");
 const { createPaymentsRouter } = require("./routes/payments.routes");
-const { configurePush, sendPush } = require("./services/push.service");
+const { configurePush } = require("./services/push.service");
 const { env } = require("./config/env");
 
 const stripe = Stripe(env.STRIPE_SECRET_KEY);
@@ -20,8 +20,10 @@ configurePush({
 
 const app = express();
 app.use(cors());
+app.use("/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
+app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use(createAuthRouter({
   jwtSecret: env.JWT_SECRET,
   accessTokenExpiresIn: env.ACCESS_TOKEN_EXPIRES_IN,
@@ -44,8 +46,6 @@ function registerSocketHandlers(io) {
     });
   });
 }
-
-sendPush("У тебя новый заказ 💰");
 
 module.exports = {
   app,

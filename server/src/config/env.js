@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 function requireEnv(name) {
   const value = process.env[name];
   if (!value) {
