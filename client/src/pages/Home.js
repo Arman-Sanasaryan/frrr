@@ -14,7 +14,7 @@ const categoryConfig = [
   { id: "food", label: "Гастрономия", icon: "🥐", basePrice: 9500 },
   { id: "sport", label: "Спорт", icon: "🏃", basePrice: 21000 },
   { id: "kids", label: "Детям", icon: "🧸", basePrice: 12000 },
-  { id: "accessories", label: "Аксессуары", icon: "👜", basePrice: 17000 }
+  { id: "accessories", label: "Аксессуары", icon: "👜", basePrice: 17000 },
 ];
 
 const productNouns = [
@@ -25,7 +25,7 @@ const productNouns = [
   "Collection",
   "Studio",
   "Signature",
-  "Classique"
+  "Classique",
 ];
 
 const productNames = [
@@ -41,7 +41,7 @@ const productNames = [
   "Silk",
   "Elite",
   "Prime",
-  "Pearl"
+  "Pearl",
 ];
 
 function makeDemoProducts() {
@@ -63,7 +63,7 @@ function makeDemoProducts() {
       category: category.id,
       price,
       badge,
-      image: `https://picsum.photos/seed/premium-${index + 1}/640/480`
+      image: `https://picsum.photos/seed/premium-${index + 1}/640/480`,
     };
   });
 }
@@ -110,7 +110,7 @@ const translations = {
     loading: "Загрузка товаров...",
     noProducts: "Товаров пока нет.",
     added: "Товар добавлен в корзину.",
-    goCart: "Перейти в корзину"
+    goCart: "Перейти в корзину",
   },
   en: {
     promoPill: "Premium membership -15% on first order",
@@ -152,8 +152,8 @@ const translations = {
     loading: "Loading products...",
     noProducts: "No products yet.",
     added: "Item added to cart.",
-    goCart: "Go to cart"
-  }
+    goCart: "Go to cart",
+  },
 };
 
 export default function Home() {
@@ -179,7 +179,7 @@ export default function Home() {
 
     api
       .get(`/products?category=${category}&price=${price}`)
-      .then(res => {
+      .then((res) => {
         if (isMounted) {
           const apiProducts = Array.isArray(res.data) ? res.data : [];
           if (apiProducts.length > 0) {
@@ -211,15 +211,15 @@ export default function Home() {
   const total = useMemo(() => getCartTotal(cart), [cart]);
   const categoryStats = useMemo(
     () =>
-      categoryConfig.map(item => ({
+      categoryConfig.map((item) => ({
         ...item,
-        count: demoProducts.filter(p => p.category === item.id).length
+        count: demoProducts.filter((p) => p.category === item.id).length,
       })),
-    []
+    [],
   );
 
   const visibleProducts = useMemo(() => {
-    let filtered = products.filter(item => {
+    let filtered = products.filter((item) => {
       const searchMatch =
         !search ||
         item.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -241,9 +241,13 @@ export default function Home() {
     });
 
     if (sortBy === "price_asc") {
-      filtered = [...filtered].sort((a, b) => Number(a.price) - Number(b.price));
+      filtered = [...filtered].sort(
+        (a, b) => Number(a.price) - Number(b.price),
+      );
     } else if (sortBy === "price_desc") {
-      filtered = [...filtered].sort((a, b) => Number(b.price) - Number(a.price));
+      filtered = [...filtered].sort(
+        (a, b) => Number(b.price) - Number(a.price),
+      );
     } else if (sortBy === "name") {
       filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
     } else {
@@ -258,7 +262,7 @@ export default function Home() {
   }, [category, isUsingDemoData, price, products, search, sortBy]);
 
   function handleAddToCart(product) {
-    setCart(prev => {
+    setCart((prev) => {
       const next = [...prev, product];
       writeCart(next);
       return next;
@@ -300,7 +304,7 @@ export default function Home() {
           <select
             className="language-select"
             value={lang}
-            onChange={e => changeLanguage(e.target.value)}
+            onChange={(e) => changeLanguage(e.target.value)}
           >
             <option value="ru">RU</option>
             <option value="en">EN</option>
@@ -340,14 +344,16 @@ export default function Home() {
             type="email"
             placeholder="Email"
             value={authForm.email}
-            onChange={e => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
+            onChange={(e) =>
+              setAuthForm((prev) => ({ ...prev, email: e.target.value }))
+            }
           />
           <input
             type="password"
             placeholder="Password"
             value={authForm.password}
-            onChange={e =>
-              setAuthForm(prev => ({ ...prev, password: e.target.value }))
+            onChange={(e) =>
+              setAuthForm((prev) => ({ ...prev, password: e.target.value }))
             }
           />
           <div className="auth-popup-actions">
@@ -364,7 +370,9 @@ export default function Home() {
           <h3>{t.heroTitle}</h3>
           <p>{t.heroText}</p>
         </div>
-        <button onClick={openCart}>{t.cart}: {cart.length}</button>
+        <button onClick={openCart}>
+          {t.cart}: {cart.length}
+        </button>
       </div>
 
       <div className="ad-grid">
@@ -393,16 +401,20 @@ export default function Home() {
           type="text"
           placeholder={t.search}
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       <div className="premium-categories">
-        {categoryStats.map(item => (
+        {categoryStats.map((item) => (
           <button
             key={item.id}
-            className={category === item.id ? "category-tile active" : "category-tile"}
-            onClick={() => setCategory(prev => (prev === item.id ? "" : item.id))}
+            className={
+              category === item.id ? "category-tile active" : "category-tile"
+            }
+            onClick={() =>
+              setCategory((prev) => (prev === item.id ? "" : item.id))
+            }
           >
             <span className="category-icon">{item.icon}</span>
             <span className="category-label">{item.label}</span>
@@ -412,7 +424,7 @@ export default function Home() {
       </div>
 
       <div className="filters">
-        <select value={category} onChange={e => setCategory(e.target.value)}>
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="">{t.allCategories}</option>
           <option value="clothes">{t.clothes}</option>
           <option value="tech">{t.tech}</option>
@@ -420,12 +432,12 @@ export default function Home() {
           <option value="home">{t.home}</option>
           <option value="food">{t.food}</option>
         </select>
-        <select value={price} onChange={e => setPrice(e.target.value)}>
+        <select value={price} onChange={(e) => setPrice(e.target.value)}>
           <option value="">{t.anyPrice}</option>
           <option value="low">{t.lowPrice}</option>
           <option value="high">{t.highPrice}</option>
         </select>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           <option value="popular">{t.popular}</option>
           <option value="price_asc">{t.asc}</option>
           <option value="price_desc">{t.desc}</option>
@@ -434,16 +446,16 @@ export default function Home() {
       </div>
 
       <div className="chips">
-        {[{ label: "Все", value: "" }, ...categoryConfig].map(chip => {
+        {[{ label: "Все", value: "" }, ...categoryConfig].map((chip) => {
           const chipValue = chip.value ?? chip.id;
           return (
-          <button
-            key={chip.id || chip.label}
-            className={category === chipValue ? "chip active" : "chip"}
-            onClick={() => setCategory(chipValue)}
-          >
-            {chip.label}
-          </button>
+            <button
+              key={chip.id || chip.label}
+              className={category === chipValue ? "chip active" : "chip"}
+              onClick={() => setCategory(chipValue)}
+            >
+              {chip.label}
+            </button>
           );
         })}
       </div>
@@ -455,7 +467,7 @@ export default function Home() {
       {message ? <p style={{ padding: 10 }}>{message}</p> : null}
 
       <div className="grid">
-        {visibleProducts.map(p => (
+        {visibleProducts.map((p) => (
           <ProductCard key={p._id} p={p} onAddToCart={handleAddToCart} />
         ))}
       </div>
@@ -465,7 +477,25 @@ export default function Home() {
       </div>
 
       <ChatWidget />
-      <div id="cart">🛒 {cart.length} | {total} AMD</div>
+      <div id="cart">
+        🛒 {cart.length} |{" "}
+        {typeof total === "number" ? new Intl.NumberFormat().format(total) : total}{" "}
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={() => navigate("/bin")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              navigate("/bin");
+            }
+          }}
+          style={{ cursor: "pointer", textDecoration: "underline" }}
+          aria-label={`${t.cart}: ${Array.isArray(cart) ? cart.length : 0} items, ${total} AMD. Open bin`}
+        >
+          AMD
+        </span>
+      </div>
     </div>
   );
 }

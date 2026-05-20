@@ -422,21 +422,58 @@ select {
   margin: 8px 0;
 }
 
-@media (max-width: 780px) {
-  .top-auth-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
+body.bin-mode > *:not(.bin-page) {
+  display: none !important;
+}
+body.bin-mode {
+  background: #000 !important;
+}
 
-  .filters {
-    grid-template-columns: 1fr;
-  }
+.bin-page {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: #fff;
+}
 
-  .trust-row {
-    grid-template-columns: 1fr;
-  }
+/* Центрирующий контейнер и элементы */
+.bin-center {
+  width: 100%;
+  max-width: 720px;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+}
 
-  .ad-grid {
-    grid-template-columns: 1fr;
-  }
+/* Greeting */
+.bin-greeting {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* Input */
+.bin-input {
+  width: 100%;
+  max-width: 640px;
+  padding: 14px 16px;
+  font-size: 18px;
+  color: #fff;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  outline: none;
+}
+
+.bin-input::placeholder {
+  color: #777;
 }
