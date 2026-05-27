@@ -481,17 +481,8 @@ export default function Home() {
         🛒 {cart.length} |{" "}
         {typeof total === "number" ? new Intl.NumberFormat().format(total) : total}{" "}
         <span
-          role="button"
-          tabIndex={0}
-          onClick={() => navigate("/bin")}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              navigate("/bin");
-            }
-          }}
-          style={{ cursor: "pointer", textDecoration: "underline" }}
-          aria-label={`${t.cart}: ${Array.isArray(cart) ? cart.length : 0} items, ${total} AMD. Open bin`}
+          style={{ textDecoration: "underline" }}
+          aria-label={`${t.cart}: ${Array.isArray(cart) ? cart.length : 0} items, ${total} AMD.`}
         >
           AMD
         </span>

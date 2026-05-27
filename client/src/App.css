@@ -422,14 +422,14 @@ select {
   margin: 8px 0;
 }
 
-body.bin-mode > *:not(.bin-page) {
+body.quantility-mode > *:not(.quantility-page) {
   display: none !important;
 }
-body.bin-mode {
+body.quantility-mode {
   background: #000 !important;
 }
 
-.bin-page {
+.quantility-page {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -453,7 +453,7 @@ body.bin-mode {
    @media (max-width: 600px) { .bin-page { --bg-w: 320px; --bg-h: 240px; } }
 */
 
-.bin-page::before {
+.quantility-page::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -462,7 +462,7 @@ body.bin-mode {
 }
 
 /* Центрирующий контейнер и элементы */
-.bin-center {
+.quantility-center {
   width: 100%;
   max-width: 666px;
   padding: 24px;
@@ -480,7 +480,7 @@ body.bin-mode {
 }
 
 /* Greeting */
-.bin-greeting {
+.quantility-greeting {
   margin: 0;
   font-size: 28px;
   font-weight: 600;
@@ -489,7 +489,7 @@ body.bin-mode {
 }
 
 /* Input */
-.bin-input {
+.quantility-input {
   width: 100%;
   max-width: 640px;
   padding: 14px 16px;
@@ -505,6 +505,6 @@ body.bin-mode {
   margin-top: auto;
 }
 
-.bin-input::placeholder {
+.quantility-input::placeholder {
   color: #ffffff;
 }

@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import CartPage from "./pages/CartPage";
 import SuccessPage from "./pages/SuccessPage";
 import CancelPage from "./pages/CancelPage";
-import Bin from "./pages/Bin";
+import Quantility from "./pages/Quantility";
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/cancel" element={<CancelPage />} />
-        <Route path="/bin" element={<Bin />} />
+        <Route path="/quantility" element={<Quantility />} />
       </Routes>
     </div>
   );
