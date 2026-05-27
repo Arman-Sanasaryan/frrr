@@ -17,7 +17,7 @@ export default function Bin() {
           autoFocus
           className="bin-input"
           aria-label="bin-input"
-          placeholder="soOn"
+          placeholder="soOn..."
           disabled
         />
       </div>

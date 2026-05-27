@@ -436,20 +436,47 @@ body.bin-mode {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000;
+  background-image: url('../public/sss.jpg');
+  /* Задайте конкретные размеры фона (ширина высота) */
+  --bg-w: 111px;
+  --bg-h: 111px;
+  background-size: var(--bg-w) var(--bg-h);
+  background-position: center;
+  background-repeat: no-repeat;
   color: #fff;
+}
+
+/* Примеры альтернатив:
+   background-size: contain;        -> вписать изображение сохраняя пропорции
+   background-size: cover;          -> заполнить контейнер (обрезается)
+   background-size: 100% auto;      -> растянуть по ширине, сохранить пропорции
+   @media (max-width: 600px) { .bin-page { --bg-w: 320px; --bg-h: 240px; } }
+*/
+
+.bin-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.22);
+  z-index: 1;
 }
 
 /* Центрирующий контейнер и элементы */
 .bin-center {
   width: 100%;
-  max-width: 720px;
+  max-width: 666px;
   padding: 24px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 18px;
   align-items: center;
+  /* занимаем высоту экрана и располагаем элементы:
+     верхний контент вверху, поле ввода — внизу */
+  height: calc(100vh - 48px);
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
 }
 
 /* Greeting */
@@ -468,12 +495,16 @@ body.bin-mode {
   padding: 14px 16px;
   font-size: 18px;
   color: #fff;
-  background: #111;
+  background: rgba(0,0,0,0.66);
   border: 1px solid #222;
-  border-radius: 10px;
+  border-radius: 8px;
   outline: none;
+  /* поле будет расположено внизу контейнера, как в чатах */
+  margin: 0;
+  /* Добавлено: отталкиваемся от верхней части, чтобы гарантированно оказаться внизу */
+  margin-top: auto;
 }
 
 .bin-input::placeholder {
-  color: #777;
+  color: #ffffff;
 }
