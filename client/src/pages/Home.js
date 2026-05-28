@@ -19,20 +19,20 @@ export default function Home() {
   const [theme, setTheme] = useState(() => {
   return localStorage.getItem("theme") || "premium";
 });
+  const themes = ["premium", "minimal", "solar"];
   const [cartOpen, setCartOpen] = useState(false);
   const [subcategory, setSubcategory] = useState("");
 
-  useEffect(() => {
+useEffect(() => {
   document.body.setAttribute("data-theme", theme);
 }, [theme]);
 
   function toggleTheme() {
-  const next = theme === "premium" ? "minimal" : "premium";
+  const currentIndex = themes.indexOf(theme);
+  const nextTheme = themes[(currentIndex + 1) % themes.length];
 
-  setTheme(next);
-  localStorage.setItem("theme", next);
-
-  document.body.setAttribute("data-theme", next);
+  setTheme(nextTheme);
+  localStorage.setItem("theme", nextTheme);
 }
 
   // ===== TRANSLATIONS (простые) =====
@@ -121,8 +121,10 @@ export default function Home() {
 
           <button onClick={openCart}>🛒 {cart.length}</button>
           <button onClick={toggleTheme}>
-            {theme === "premium" ? "✨ Premium" : "⚪ Minimal"}
-          </button>
+  {theme === "premium" && "✨ Premium"}
+  {theme === "minimal" && "⚪ Minimal"}
+  {theme === "solar" && "☀️ Solar"}
+</button>
         </div>
       </div>
 
