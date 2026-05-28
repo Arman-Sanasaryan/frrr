@@ -1,4 +1,3 @@
-import { useState } from "react";
 import "./App.css";
 
 import "./styles/global.css";
@@ -18,10 +17,9 @@ import CancelPage from "./pages/CancelPage";
 import Quantility from "./pages/Quantility";
 
 function App() {
-  const [cart, setCart] = useState([]);
 
   function handleAddToCart(product) {
-    setCart((prev) => [...prev, product]);
+    console.log("added:", product);
   }
   return (
     <div className="App">

@@ -24,7 +24,7 @@ export default function Home() {
 
   useEffect(() => {
   document.body.setAttribute("data-theme", theme);
-}, []);
+}, [theme]);
 
   function toggleTheme() {
   const next = theme === "premium" ? "minimal" : "premium";
