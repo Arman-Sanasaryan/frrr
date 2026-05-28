@@ -83,7 +83,7 @@ export default function Home() {
     }
 
     return filtered;
-  }, [category, subcategory, search, price, sortBy, demoProducts]);
+  }, [category, subcategory, search, price, sortBy]);
 
   // ===== CART =====
   function handleAddToCart(product) {
