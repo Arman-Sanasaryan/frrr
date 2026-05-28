@@ -1,20 +1,38 @@
-export default function ProductCard({ p, onAddToCart }) {
-  const oldPrice = Math.round(Number(p.price) * 1.25);
-  const discount = Math.max(5, Math.round(((oldPrice - p.price) / oldPrice) * 100));
+import { Link } from "react-router-dom";
 
+export default function ProductCard({ p, onAddToCart }) {
   return (
-    <div className="card">
-      <img src={p.image} alt={p.name} loading="lazy" />
-      {p.badge ? <span className="badge">{p.badge}</span> : null}
-      <h4>{p.name}</h4>
-      {p.subtitle ? <p className="subtitle">{p.subtitle}</p> : null}
-      <div className="price-row">
-        <strong>{p.price} AMD</strong>
-        <span className="old-price">{oldPrice} AMD</span>
-        <span className="discount">-{discount}%</span>
+  <Link
+    to={`/product/${p._id}`}
+    className="product-link"
+  >
+    <div className="product-card">
+
+      <div className="img-wrap">
+        <img src={p.image} alt={p.name} />
       </div>
-      <p className="meta">4.7 ★ | 1.2k+ заказов</p>
-      <button onClick={() => onAddToCart(p)}>Купить</button>
+
+      <div className="title">
+        {p.name}
+      </div>
+
+      <div className="bottom">
+
+        <div className="price">
+          ${p.price}
+        </div>
+
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            onAddToCart(p);
+          }}
+        >
+          Add
+        </button>
+
+      </div>
     </div>
-  );
+  </Link>
+);
 }

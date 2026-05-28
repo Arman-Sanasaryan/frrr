@@ -1,0 +1,27 @@
+.catbar {
+  display: flex;
+  gap: 10px;
+  padding: 10px 20px;
+  overflow-x: auto;
+}
+
+.catbtn {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.catbtn.active {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border: none;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  padding: 10px 20px;
+}

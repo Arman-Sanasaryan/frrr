@@ -1,0 +1,29 @@
+:root {
+  --bg: #0f1115;
+  --card: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+
+  --text: #eaeaea;
+  --primary: #7c5cff;
+  --secondary: #00d4ff;
+}
+
+[data-theme="minimal"] {
+  --bg: #ffffff;
+  --card: #f5f5f5;
+  --border: #e5e5e5;
+
+  --text: #111;
+  --primary: #111;
+  --secondary: #444;
+}
+
+[data-theme="premium"] {
+  --bg: #0f1115;
+  --card: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+
+  --text: #eaeaea;
+  --primary: #7c5cff;
+  --secondary: #00d4ff;
+}
