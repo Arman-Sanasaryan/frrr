@@ -5,6 +5,7 @@ import { readCart, writeCart } from "../utils/cart";
 import demoProducts from "../data/Products";
 import categoryConfig from "../data/categoryConfig";
 import { useEffect } from "react";
+import logo from "../assets/luve.jpg";
 
 export default function Home() {
   const { user, logout } = useContext(AuthContext);
@@ -17,23 +18,23 @@ export default function Home() {
   const [lang, setLang] = useState("ru");
   const [cart, setCart] = useState(() => readCart());
   const [theme, setTheme] = useState(() => {
-  return localStorage.getItem("theme") || "premium";
-});
+    return localStorage.getItem("theme") || "premium";
+  });
   const themes = ["premium", "minimal", "solar"];
   const [cartOpen, setCartOpen] = useState(false);
   const [subcategory, setSubcategory] = useState("");
 
-useEffect(() => {
-  document.body.setAttribute("data-theme", theme);
-}, [theme]);
+  useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
+  }, [theme]);
 
   function toggleTheme() {
-  const currentIndex = themes.indexOf(theme);
-  const nextTheme = themes[(currentIndex + 1) % themes.length];
+    const currentIndex = themes.indexOf(theme);
+    const nextTheme = themes[(currentIndex + 1) % themes.length];
 
-  setTheme(nextTheme);
-  localStorage.setItem("theme", nextTheme);
-}
+    setTheme(nextTheme);
+    localStorage.setItem("theme", nextTheme);
+  }
 
   // ===== TRANSLATIONS (простые) =====
   const t = {
@@ -55,10 +56,8 @@ useEffect(() => {
     }
 
     if (subcategory) {
-  filtered = filtered.filter(
-    (p) => p.subcategory === subcategory
-  );
-}
+      filtered = filtered.filter((p) => p.subcategory === subcategory);
+    }
 
     if (search) {
       filtered = filtered.filter((p) =>
@@ -121,10 +120,10 @@ useEffect(() => {
 
           <button onClick={openCart}>🛒 {cart.length}</button>
           <button onClick={toggleTheme}>
-  {theme === "premium" && "✨ Premium"}
-  {theme === "minimal" && "⚪ Minimal"}
-  {theme === "solar" && "☀️ Solar"}
-</button>
+            {theme === "premium" && "✨ Premium"}
+            {theme === "minimal" && "⚪ Minimal"}
+            {theme === "solar" && "☀️ Solar"}
+          </button>
         </div>
       </div>
 
@@ -132,7 +131,7 @@ useEffect(() => {
       <div className="header">
         <div className="logo">
           <span className="logo-dot"></span>
-          Luvé on Store
+          <div className="logo-text">Luvé on Store</div>
         </div>
 
         <input
@@ -145,128 +144,103 @@ useEffect(() => {
 
       {/* CATEGORY BAR */}
       <div className="shop-layout">
+        {/* SIDEBAR */}
+        <aside className="sidebar">
+          <div className="sidebar-title">Categories</div>
 
-  {/* SIDEBAR */}
-  <aside className="sidebar">
+          <button
+            className={`sidecat ${category === "" ? "active" : ""}`}
+            onClick={() => {
+              setCategory("");
+              setSubcategory("");
+            }}
+          >
+            📚 All Products
+          </button>
 
-    <div className="sidebar-title">
-      Categories
-    </div>
+          {categoryConfig.map((c) => (
+            <div key={c.id}>
+              <button
+                className={`sidecat ${category === c.id ? "active" : ""}`}
+                onClick={() => {
+                  if (category === c.id) {
+                    setCategory("");
+                    setSubcategory("");
+                  } else {
+                    setCategory(c.id);
+                    setSubcategory("");
+                  }
+                }}
+              >
+                <span>
+                  {c.icon} {c.label}
+                </span>
+              </button>
 
-    <button
-      className={`sidecat ${category === "" ? "active" : ""}`}
-      onClick={() => {
-        setCategory("");
-        setSubcategory("");
-      }}
-    >
-      📚 All Products
-    </button>
+              {/* SUBCATEGORIES */}
+              {category === c.id && (
+                <div className="subcategories">
+                  {c.sub.map((s) => (
+                    <button
+                      key={s}
+                      className={`subcat ${subcategory === s ? "active" : ""}`}
+                      onClick={() => setSubcategory(s)}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </aside>
 
-    {categoryConfig.map((c) => (
-      <div key={c.id}>
+        {/* PRODUCTS */}
+        <div className="content">
+          <div className="filters">
+            <select value={price} onChange={(e) => setPrice(e.target.value)}>
+              <option value="">{t.anyPrice}</option>
+              <option value="low">{t.lowPrice}</option>
+              <option value="high">{t.highPrice}</option>
+            </select>
 
-        <button
-          className={`sidecat ${
-            category === c.id ? "active" : ""
-          }`}
-          onClick={() => {
-  if (category === c.id) {
-    setCategory("");
-    setSubcategory("");
-  } else {
-    setCategory(c.id);
-    setSubcategory("");
-  }
-}}
-        >
-          <span>
-            {c.icon} {c.label}
-          </span>
-        </button>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="popular">{t.popular}</option>
+              <option value="price_asc">{t.asc}</option>
+              <option value="price_desc">{t.desc}</option>
+            </select>
+          </div>
 
-        {/* SUBCATEGORIES */}
-        {category === c.id && (
-          <div className="subcategories">
+          <div className="grid">
+            {visibleProducts.map((p) => (
+              <ProductCard key={p._id} p={p} onAddToCart={handleAddToCart} />
+            ))}
+          </div>
+        </div>
+      </div>
 
-            {c.sub.map((s) => (
+      {category && (
+        <div className="subbar">
+          <button
+            className={`subbtn ${subcategory === "" ? "active" : ""}`}
+            onClick={() => setSubcategory("")}
+          >
+            Все
+          </button>
+
+          {categoryConfig
+            .find((c) => c.id === category)
+            ?.sub.map((s) => (
               <button
                 key={s}
-                className={`subcat ${
-                  subcategory === s ? "active" : ""
-                }`}
+                className={`subbtn ${subcategory === s ? "active" : ""}`}
                 onClick={() => setSubcategory(s)}
               >
                 {s}
               </button>
             ))}
-
-          </div>
-        )}
-
-      </div>
-    ))}
-  </aside>
-
-  {/* PRODUCTS */}
-  <div className="content">
-
-    <div className="filters">
-      <select
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      >
-        <option value="">{t.anyPrice}</option>
-        <option value="low">{t.lowPrice}</option>
-        <option value="high">{t.highPrice}</option>
-      </select>
-
-      <select
-        value={sortBy}
-        onChange={(e) => setSortBy(e.target.value)}
-      >
-        <option value="popular">{t.popular}</option>
-        <option value="price_asc">{t.asc}</option>
-        <option value="price_desc">{t.desc}</option>
-      </select>
-    </div>
-
-    <div className="grid">
-      {visibleProducts.map((p) => (
-        <ProductCard
-          key={p._id}
-          p={p}
-          onAddToCart={handleAddToCart}
-        />
-      ))}
-    </div>
-
-  </div>
-</div>
-
-      {category && (
-  <div className="subbar">
-
-    <button
-      className={`subbtn ${subcategory === "" ? "active" : ""}`}
-      onClick={() => setSubcategory("")}
-    >
-      Все
-    </button>
-
-    {categoryConfig
-      .find((c) => c.id === category)
-      ?.sub.map((s) => (
-        <button
-          key={s}
-          className={`subbtn ${subcategory === s ? "active" : ""}`}
-          onClick={() => setSubcategory(s)}
-        >
-          {s}
-        </button>
-      ))}
-  </div>
-)}
+        </div>
+      )}
 
       {/* FILTERS */}
       <div className="filters">
