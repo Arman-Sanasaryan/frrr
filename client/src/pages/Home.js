@@ -1,14 +1,15 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { AuthContext } from "../context/AuthContext";
 import { readCart, writeCart } from "../utils/cart";
 import demoProducts from "../data/Products";
 import categoryConfig from "../data/categoryConfig";
-import { useEffect } from "react";
 import logo from "../assets/luve.jpg";
 
 export default function Home() {
   const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   // ===== STATE =====
   const [category, setCategory] = useState("");
@@ -290,7 +291,7 @@ export default function Home() {
             </div>
 
             <div className="drawer-footer">
-              <button className="checkout">Checkout</button>
+              <button className="checkout" onClick={() => navigate("/checkout")}>Checkout</button>
             </div>
           </div>
         </div>

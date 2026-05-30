@@ -15,6 +15,7 @@ import ProductPage from "./pages/ProductPage";
 import SuccessPage from "./pages/SuccessPage";
 import CancelPage from "./pages/CancelPage";
 import Quantility from "./pages/Quantility";
+import Checkout from "./pages/Checkout";
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/cancel" element={<CancelPage />} />
         <Route path="/quantility" element={<Quantility />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </div>
   );
