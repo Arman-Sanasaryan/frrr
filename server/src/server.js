@@ -1,43 +1,40 @@
 const http = require("http");
-const mongoose = require("mongoose");
 const { Server } = require("socket.io");
-const { app, PORT, MONGODB_URI, registerSocketHandlers } = require("./app");
+const { app, PORT, registerSocketHandlers } = require("./app");
+const { initDatabase, isDatabaseReady, getDbPath } = require("./db");
+const { seedProductsIfEmpty } = require("./db/seed");
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
-const localMongoUri = "mongodb://127.0.0.1:27017/shop";
 
 registerSocketHandlers(io);
 
-async function start() {
-  let dbConnected = false;
+function start() {
   try {
-    await mongoose.connect(MONGODB_URI);
-    dbConnected = true;
+    initDatabase();
+    seedProductsIfEmpty();
   } catch (error) {
-    if (MONGODB_URI !== localMongoUri) {
-      console.warn("Primary MongoDB connection failed, trying local fallback...");
-      try {
-        await mongoose.connect(localMongoUri);
-        dbConnected = true;
-      } catch {
-        dbConnected = false;
-      }
-    } else {
-      dbConnected = false;
-    }
+    console.error("SQLite initialization failed:", error.message);
+    process.exit(1);
   }
 
-  httpServer.listen(PORT, () => {
-    if (dbConnected) {
-      console.log("🚀 Server started");
+  httpServer.on("error", error => {
+    if (error.code === "EADDRINUSE") {
+      console.error(
+        `Port ${PORT} is already in use. Stop the other process or change PORT in server/.env`
+      );
     } else {
-      console.warn("⚠️ Server started without MongoDB connection");
+      console.error("Server error:", error.message);
     }
+    process.exit(1);
+  });
+
+  httpServer.listen(PORT, () => {
+    console.log(`Server listening on http://localhost:${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/health`);
+    console.log(`Database file: ${getDbPath()}`);
+    console.log(`Database ready: ${isDatabaseReady()}`);
   });
 }
 
-start().catch(err => {
-  console.error("Unexpected startup error", err);
-  process.exit(1);
-});
+start();

@@ -1,8 +1,13 @@
 const express = require("express");
 const cors = require("cors");
 const Stripe = require("stripe");
+const { isDatabaseReady, getDbPath } = require("./db");
 const { createAuthRouter } = require("./routes/auth.routes");
-const { createAuthMiddleware } = require("./middleware/auth.middleware");
+const {
+  createAuthMiddleware,
+  createOptionalAuthMiddleware
+} = require("./middleware/auth.middleware");
+const { createCryptoRouter } = require("./routes/crypto.routes");
 const { createOrdersRouter } = require("./routes/orders.routes");
 const { createProductsRouter } = require("./routes/products.routes");
 const { createReviewsRouter } = require("./routes/reviews.routes");
@@ -23,13 +28,21 @@ app.use(cors());
 app.use("/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
-app.get("/health", (_req, res) => res.json({ ok: true }));
+app.get("/health", (_req, res) => {
+  res.json({
+    ok: true,
+    db: isDatabaseReady() ? "connected" : "disconnected",
+    dbPath: getDbPath()
+  });
+});
 app.use(createAuthRouter({
   jwtSecret: env.JWT_SECRET,
   accessTokenExpiresIn: env.ACCESS_TOKEN_EXPIRES_IN,
   refreshTokenExpiresIn: env.REFRESH_TOKEN_EXPIRES_IN
 }));
 const auth = createAuthMiddleware(env.JWT_SECRET);
+const optionalAuth = createOptionalAuthMiddleware(env.JWT_SECRET);
+app.use(createCryptoRouter({ optionalAuth, cryptoEnv: env }));
 app.use(createOrdersRouter({ auth, stripe, staticBaseUrl: env.STATIC_BASE_URL }));
 app.use(createProductsRouter({ auth, publicBaseUrl: env.PUBLIC_BASE_URL }));
 app.use(createReviewsRouter());
@@ -50,6 +63,5 @@ function registerSocketHandlers(io) {
 module.exports = {
   app,
   PORT: env.PORT,
-  MONGODB_URI: env.MONGODB_URI,
   registerSocketHandlers
 };

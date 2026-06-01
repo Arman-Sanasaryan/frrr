@@ -1,13 +1,11 @@
-const Review = require("../models/review.model");
+const Review = require("../repositories/review.repository");
 
 async function addReview(payload) {
-  const review = new Review(payload);
-  await review.save();
-  return review;
+  return Review.insert(payload);
 }
 
 function listReviewsByProduct(productId) {
-  return Review.find({ productId });
+  return Review.findByProductId(productId);
 }
 
 module.exports = {

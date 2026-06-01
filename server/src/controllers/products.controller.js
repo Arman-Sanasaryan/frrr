@@ -1,7 +1,8 @@
 const {
   addProduct,
   deleteProductById,
-  listProducts
+  listProducts,
+  getProductById
 } = require("../services/products.service");
 
 async function addProductController(req, res) {
@@ -27,8 +28,17 @@ async function listProductsController(req, res) {
   res.json(products);
 }
 
+async function getProductController(req, res) {
+  const product = await getProductById(req.params.id);
+  if (!product) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+  return res.json(product);
+}
+
 module.exports = {
   addProductController,
   deleteProductController,
-  listProductsController
+  listProductsController,
+  getProductController
 };

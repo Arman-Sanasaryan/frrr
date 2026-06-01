@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user.model");
+const User = require("../repositories/user.repository");
 
 function toSafeUser(user) {
   return {
@@ -9,27 +9,26 @@ function toSafeUser(user) {
   };
 }
 
-function loginByEmailPassword({
+async function loginByEmailPassword({
   email,
   password,
   jwtSecret,
   accessTokenExpiresIn,
   refreshTokenExpiresIn
 }) {
-  return User.findOne({ email }).then(async user => {
-    if (!user) return null;
+  const user = User.findOne({ email });
+  if (!user) return null;
 
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) return null;
+  const ok = await bcrypt.compare(password, user.password);
+  if (!ok) return null;
 
-    const token = jwt.sign({ id: user._id }, jwtSecret, {
-      expiresIn: accessTokenExpiresIn
-    });
-    const refreshToken = jwt.sign({ id: user._id }, jwtSecret, {
-      expiresIn: refreshTokenExpiresIn
-    });
-    return { token, refreshToken, user: toSafeUser(user) };
+  const token = jwt.sign({ id: user._id }, jwtSecret, {
+    expiresIn: accessTokenExpiresIn
   });
+  const refreshToken = jwt.sign({ id: user._id }, jwtSecret, {
+    expiresIn: refreshTokenExpiresIn
+  });
+  return { token, refreshToken, user: toSafeUser(user) };
 }
 
 function refreshAccessToken({ refreshToken, jwtSecret, accessTokenExpiresIn }) {
@@ -42,8 +41,16 @@ function refreshAccessToken({ refreshToken, jwtSecret, accessTokenExpiresIn }) {
 
 async function registerUser({ email, password }) {
   const hash = await bcrypt.hash(password, 8);
-  const user = new User({ email, password: hash });
-  await user.save();
+  try {
+    User.insert({ email, password: hash });
+  } catch (error) {
+    if (String(error.message).includes("UNIQUE")) {
+      const err = new Error("Email already registered");
+      err.status = 409;
+      throw err;
+    }
+    throw error;
+  }
 }
 
 module.exports = {

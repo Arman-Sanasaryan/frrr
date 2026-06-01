@@ -1,35 +1,32 @@
-const Order = require("../models/order.model");
+const Order = require("../repositories/order.repository");
 
 async function createOrder({ cart, userId }) {
   const total = cart.reduce((sum, item) => sum + item.price, 0);
-  const order = new Order({
+  return Order.insert({
     items: cart,
     total,
-    userId
+    userId: String(userId)
   });
-  await order.save();
-  return order;
 }
 
 function createPaidOrderFromSession({ session }) {
-  const order = new Order({
+  return Order.insert({
     items: JSON.parse(session.metadata.cart),
     total: session.amount_total / 100,
     status: "оплачен"
   });
-  return order.save();
 }
 
 function listOrders() {
-  return Order.find().sort({ createdAt: -1 });
+  return Order.findAllSorted();
 }
 
 function updateOrderStatus({ id, status }) {
-  return Order.findByIdAndUpdate(id, { status });
+  return Order.updateStatus(id, status);
 }
 
 function listMyOrders({ userId }) {
-  return Order.find({ userId });
+  return Order.findByUserId(userId);
 }
 
 module.exports = {

@@ -36,11 +36,16 @@ function refresh(req, res) {
 }
 
 async function register(req, res) {
-  await registerUser({
-    email: req.body.email,
-    password: req.body.password
-  });
-  return res.send("OK");
+  try {
+    await registerUser({
+      email: req.body.email,
+      password: req.body.password
+    });
+    return res.send("OK");
+  } catch (error) {
+    const status = error.status || 500;
+    return res.status(status).json({ message: error.message || "Registration failed" });
+  }
 }
 
 module.exports = {

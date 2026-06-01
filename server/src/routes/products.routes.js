@@ -4,7 +4,8 @@ const path = require("path");
 const {
   addProductController,
   deleteProductController,
-  listProductsController
+  listProductsController,
+  getProductController
 } = require("../controllers/products.controller");
 
 const storage = multer.diskStorage({
@@ -26,6 +27,7 @@ function createProductsRouter({ auth, publicBaseUrl }) {
   router.post("/add-product", auth, upload.single("image"), addProductController);
   router.delete("/delete-product/:id", auth, deleteProductController);
   router.get("/products", listProductsController);
+  router.get("/products/:id", getProductController);
 
   return router;
 }

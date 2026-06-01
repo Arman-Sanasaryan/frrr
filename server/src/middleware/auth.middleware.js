@@ -19,4 +19,27 @@ function createAuthMiddleware(jwtSecret) {
   };
 }
 
-module.exports = { createAuthMiddleware };
+function createOptionalAuthMiddleware(jwtSecret) {
+  return function optionalAuth(req, _res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return next();
+    }
+
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length).trim()
+      : authHeader;
+    if (!token) {
+      return next();
+    }
+
+    try {
+      req.user = jwt.verify(token, jwtSecret);
+    } catch {
+      // Guest checkout is allowed.
+    }
+    return next();
+  };
+}
+
+module.exports = { createAuthMiddleware, createOptionalAuthMiddleware };

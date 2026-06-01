@@ -1,31 +1,30 @@
-const Product = require("../models/product.model");
+const Product = require("../repositories/product.repository");
 
-async function addProduct({ name, price, imageBaseUrl, filename }) {
-  const product = new Product({
+async function addProduct({ name, price, imageBaseUrl, filename, category, subcategory }) {
+  return Product.insert({
     name,
     price,
-    image: `${imageBaseUrl}/uploads/` + filename
+    image: `${imageBaseUrl}/uploads/${filename}`,
+    category,
+    subcategory
   });
-  await product.save();
-  return product;
 }
 
 function deleteProductById(id) {
-  return Product.findByIdAndDelete(id);
+  return Product.deleteById(id);
 }
 
 function listProducts({ category, price }) {
-  const filter = {};
+  return Product.findAll({ category, price });
+}
 
-  if (category) filter.category = category;
-  if (price === "low") filter.price = { $lte: 5000 };
-  if (price === "high") filter.price = { $gte: 5000 };
-
-  return Product.find(filter);
+function getProductById(id) {
+  return Product.findById(id);
 }
 
 module.exports = {
   addProduct,
   deleteProductById,
-  listProducts
+  listProducts,
+  getProductById
 };
