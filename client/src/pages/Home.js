@@ -1,29 +1,39 @@
 import { useContext, useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
+import ChatWidget from "../components/ChatWidget";
 import { AuthContext } from "../context/AuthContext";
-import { readCart, writeCart } from "../utils/cart";
-import demoProducts from "../data/Products";
+import { useProducts } from "../context/ProductsContext";
+import { readCart, writeCart, getCartTotal } from "../utils/cart";
+import { formatPrice } from "../utils/formatPrice";
 import categoryConfig from "../data/categoryConfig";
-import logo from "../assets/luve.jpg";
 
 export default function Home() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, login, register } = useContext(AuthContext);
+  const { products, loading: productsLoading } = useProducts();
   const navigate = useNavigate();
 
-  // ===== STATE =====
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState("");
   const [price, setPrice] = useState("");
   const [sortBy, setSortBy] = useState("popular");
   const [lang, setLang] = useState("ru");
   const [cart, setCart] = useState(() => readCart());
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("theme") || "premium";
-  });
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem("theme") || "premium",
+  );
   const themes = ["premium", "minimal", "solar"];
   const [cartOpen, setCartOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
   const [subcategory, setSubcategory] = useState("");
+
+  const activeCategory = categoryConfig.find((c) => c.id === category);
 
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
@@ -32,12 +42,10 @@ export default function Home() {
   function toggleTheme() {
     const currentIndex = themes.indexOf(theme);
     const nextTheme = themes[(currentIndex + 1) % themes.length];
-
     setTheme(nextTheme);
     localStorage.setItem("theme", nextTheme);
   }
 
-  // ===== TRANSLATIONS (простые) =====
   const t = {
     search: lang === "ru" ? "Поиск товаров" : "Search products",
     anyPrice: lang === "ru" ? "Любая цена" : "Any price",
@@ -46,11 +54,34 @@ export default function Home() {
     popular: lang === "ru" ? "Популярные" : "Popular",
     asc: lang === "ru" ? "Цена ↑" : "Price ↑",
     desc: lang === "ru" ? "Цена ↓" : "Price ↓",
+    allProducts: lang === "ru" ? "Все товары" : "All products",
+    categories: lang === "ru" ? "Категории" : "Categories",
+    all: lang === "ru" ? "Все" : "All",
+    guest: lang === "ru" ? "Гость" : "Guest",
+    signIn: lang === "ru" ? "Войти" : "Sign in",
+    signOut: lang === "ru" ? "Выйти" : "Logout",
+    cartTitle: lang === "ru" ? "Корзина" : "Your cart",
+    cartEmpty: lang === "ru" ? "Корзина пуста" : "Cart is empty",
+    checkout: lang === "ru" ? "Оформить" : "Checkout",
+    total: lang === "ru" ? "Итого" : "Total",
+    noProducts:
+      lang === "ru" ? "Товары не найдены" : "No products match your filters",
+    loginTitle: lang === "ru" ? "Вход" : "Sign in",
+    registerTitle: lang === "ru" ? "Регистрация" : "Register",
+    email: lang === "ru" ? "Email" : "Email",
+    password: lang === "ru" ? "Пароль" : "Password",
+    submitLogin: lang === "ru" ? "Войти" : "Sign in",
+    submitRegister: lang === "ru" ? "Создать аккаунт" : "Create account",
+    switchToRegister:
+      lang === "ru" ? "Нет аккаунта? Регистрация" : "No account? Register",
+    switchToLogin:
+      lang === "ru" ? "Уже есть аккаунт? Войти" : "Have an account? Sign in",
+    myOrders: lang === "ru" ? "Мои заказы" : "My orders",
+    loadingProducts: lang === "ru" ? "Загрузка товаров…" : "Loading products…",
   };
 
-  // ===== FILTERS =====
   const visibleProducts = useMemo(() => {
-    let filtered = demoProducts;
+    let filtered = products;
 
     if (category) {
       filtered = filtered.filter((p) => p.category === category);
@@ -83,44 +114,94 @@ export default function Home() {
     }
 
     return filtered;
-  }, [category, subcategory, search, price, sortBy]);
+  }, [products, category, subcategory, search, price, sortBy]);
 
-  // ===== CART =====
+  const cartTotal = getCartTotal(cart);
+
   function handleAddToCart(product) {
     const next = [...cart, product];
     setCart(next);
     writeCart(next);
   }
 
-  function openCart() {
-    setCartOpen(true);
+  function openAuth(mode = "login") {
+    setAuthMode(mode);
+    setAuthError("");
+    setAuthOpen(true);
   }
 
-  function changeLanguage(l) {
-    setLang(l);
+  function closeAuth() {
+    setAuthOpen(false);
+    setAuthEmail("");
+    setAuthPassword("");
+    setAuthError("");
   }
 
-  // ===== UI =====
+  async function handleAuthSubmit(event) {
+    event.preventDefault();
+    setAuthError("");
+    setAuthLoading(true);
+
+    try {
+      if (authMode === "register") {
+        await register(authEmail, authPassword);
+        await login(authEmail, authPassword);
+      } else {
+        await login(authEmail, authPassword);
+      }
+      closeAuth();
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        (lang === "ru" ? "Ошибка авторизации" : "Authentication failed");
+      setAuthError(message);
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  function selectCategory(id) {
+    if (category === id) {
+      setCategory("");
+      setSubcategory("");
+      return;
+    }
+    setCategory(id);
+    setSubcategory("");
+  }
+
   return (
     <div>
-      {/* TOP BAR */}
       <div className="topbar">
-        <div>{user?.email || "Guest"}</div>
+        <div>{user?.email || t.guest}</div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <select value={lang} onChange={(e) => changeLanguage(e.target.value)}>
+        <div className="topbar-actions">
+          <select value={lang} onChange={(e) => setLang(e.target.value)}>
             <option value="ru">RU</option>
             <option value="en">EN</option>
           </select>
 
           {user ? (
-            <button onClick={logout}>Logout</button>
+            <>
+              <button type="button" onClick={() => navigate("/orders")}>
+                {t.myOrders}
+              </button>
+              <button type="button" onClick={logout}>
+                {t.signOut}
+              </button>
+            </>
           ) : (
-            <button>Sign in</button>
+            <button type="button" onClick={() => openAuth("login")}>
+              {t.signIn}
+            </button>
           )}
 
-          <button onClick={openCart}>🛒 {cart.length}</button>
-          <button onClick={toggleTheme}>
+          <button type="button" onClick={() => setCartOpen(true)}>
+            🛒 {cart.length}
+          </button>
+
+          <button type="button" onClick={toggleTheme}>
             {theme === "premium" && "✨ Premium"}
             {theme === "minimal" && "⚪ Minimal"}
             {theme === "solar" && "☀️ Solar"}
@@ -128,7 +209,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* HEADER */}
       <div className="header">
         <div className="logo">
           <span className="logo-dot"></span>
@@ -143,47 +223,39 @@ export default function Home() {
         />
       </div>
 
-      {/* CATEGORY BAR */}
       <div className="shop-layout">
-        {/* SIDEBAR */}
         <aside className="sidebar">
-          <div className="sidebar-title">Categories</div>
+          <div className="sidebar-title">{t.categories}</div>
 
           <button
+            type="button"
             className={`sidecat ${category === "" ? "active" : ""}`}
             onClick={() => {
               setCategory("");
               setSubcategory("");
             }}
           >
-            📚 All Products
+            📚 {t.allProducts}
           </button>
 
           {categoryConfig.map((c) => (
             <div key={c.id}>
               <button
+                type="button"
                 className={`sidecat ${category === c.id ? "active" : ""}`}
-                onClick={() => {
-                  if (category === c.id) {
-                    setCategory("");
-                    setSubcategory("");
-                  } else {
-                    setCategory(c.id);
-                    setSubcategory("");
-                  }
-                }}
+                onClick={() => selectCategory(c.id)}
               >
                 <span>
                   {c.icon} {c.label}
                 </span>
               </button>
 
-              {/* SUBCATEGORIES */}
               {category === c.id && (
                 <div className="subcategories">
                   {c.sub.map((s) => (
                     <button
                       key={s}
+                      type="button"
                       className={`subcat ${subcategory === s ? "active" : ""}`}
                       onClick={() => setSubcategory(s)}
                     >
@@ -196,8 +268,30 @@ export default function Home() {
           ))}
         </aside>
 
-        {/* PRODUCTS */}
         <div className="content">
+          {activeCategory && (
+            <div className="subbar">
+              <button
+                type="button"
+                className={`subbtn ${subcategory === "" ? "active" : ""}`}
+                onClick={() => setSubcategory("")}
+              >
+                {t.all}
+              </button>
+
+              {activeCategory.sub.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={`subbtn ${subcategory === s ? "active" : ""}`}
+                  onClick={() => setSubcategory(s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="filters">
             <select value={price} onChange={(e) => setPrice(e.target.value)}>
               <option value="">{t.anyPrice}</option>
@@ -212,86 +306,144 @@ export default function Home() {
             </select>
           </div>
 
-          <div className="grid">
-            {visibleProducts.map((p) => (
-              <ProductCard key={p._id} p={p} onAddToCart={handleAddToCart} />
-            ))}
-          </div>
+          {productsLoading ? (
+            <p className="empty-products">{t.loadingProducts}</p>
+          ) : visibleProducts.length === 0 ? (
+            <p className="empty-products">{t.noProducts}</p>
+          ) : (
+            <div className="grid">
+              {visibleProducts.map((p) => (
+                <ProductCard key={p._id} p={p} onAddToCart={handleAddToCart} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {category && (
-        <div className="subbar">
-          <button
-            className={`subbtn ${subcategory === "" ? "active" : ""}`}
-            onClick={() => setSubcategory("")}
-          >
-            Все
-          </button>
-
-          {categoryConfig
-            .find((c) => c.id === category)
-            ?.sub.map((s) => (
-              <button
-                key={s}
-                className={`subbtn ${subcategory === s ? "active" : ""}`}
-                onClick={() => setSubcategory(s)}
-              >
-                {s}
-              </button>
-            ))}
+      {chatOpen ? (
+        <div className="chat-panel">
+          <div className="chat-panel-header">
+            <span>💬</span>
+            <button
+              type="button"
+              className="chat-panel-close"
+              onClick={() => setChatOpen(false)}
+              aria-label="Close chat"
+            >
+              ✕
+            </button>
+          </div>
+          <ChatWidget />
         </div>
+      ) : (
+        <button
+          type="button"
+          className="chat"
+          onClick={() => setChatOpen(true)}
+          aria-label="Open chat"
+        >
+          💬
+        </button>
       )}
 
-      {/* FILTERS */}
-      <div className="filters">
-        <select value={price} onChange={(e) => setPrice(e.target.value)}>
-          <option value="">{t.anyPrice}</option>
-          <option value="low">{t.lowPrice}</option>
-          <option value="high">{t.highPrice}</option>
-        </select>
+      {authOpen && (
+        <div className="overlay auth-overlay" onClick={closeAuth}>
+          <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-header">
+              <h3>{authMode === "login" ? t.loginTitle : t.registerTitle}</h3>
+              <button type="button" onClick={closeAuth}>
+                ✕
+              </button>
+            </div>
 
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-          <option value="popular">{t.popular}</option>
-          <option value="price_asc">{t.asc}</option>
-          <option value="price_desc">{t.desc}</option>
-        </select>
-      </div>
+            <form className="auth-form" onSubmit={handleAuthSubmit}>
+              <label>
+                {t.email}
+                <input
+                  type="email"
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                />
+              </label>
 
-      {/* PRODUCTS */}
-      <div className="grid">
-        {visibleProducts.map((p) => (
-          <ProductCard key={p._id} p={p} onAddToCart={handleAddToCart} />
-        ))}
-      </div>
+              <label>
+                {t.password}
+                <input
+                  type="password"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  autoComplete={
+                    authMode === "login" ? "current-password" : "new-password"
+                  }
+                />
+              </label>
 
-      {/* CHAT */}
+              {authError && <p className="auth-error">{authError}</p>}
 
-      <div className="chat">💬</div>
+              <button type="submit" className="checkout" disabled={authLoading}>
+                {authLoading
+                  ? "..."
+                  : authMode === "login"
+                    ? t.submitLogin
+                    : t.submitRegister}
+              </button>
+            </form>
+
+            <button
+              type="button"
+              className="auth-switch"
+              onClick={() => {
+                setAuthMode(authMode === "login" ? "register" : "login");
+                setAuthError("");
+              }}
+            >
+              {authMode === "login" ? t.switchToRegister : t.switchToLogin}
+            </button>
+          </div>
+        </div>
+      )}
 
       {cartOpen && (
         <div className="overlay" onClick={() => setCartOpen(false)}>
           <div className="drawer" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-header">
-              <h3>🛒 Your Cart</h3>
-              <button onClick={() => setCartOpen(false)}>✕</button>
+              <h3>🛒 {t.cartTitle}</h3>
+              <button type="button" onClick={() => setCartOpen(false)}>
+                ✕
+              </button>
             </div>
 
             <div className="drawer-body">
               {cart.length === 0 ? (
-                <p className="muted">Cart is empty</p>
+                <p className="muted">{t.cartEmpty}</p>
               ) : (
                 cart.map((p, i) => (
-                  <div className="cart-item" key={i}>
+                  <div className="cart-item" key={`${p._id}-${i}`}>
                     <span>{p.name}</span>
-                    <span>${p.price}</span>
+                    <span>{formatPrice(p.price)}</span>
                   </div>
                 ))
               )}
             </div>
 
             <div className="drawer-footer">
-              <button className="checkout" onClick={() => navigate("/checkout")}>Checkout</button>
+              {cart.length > 0 && (
+                <p className="cart-total">
+                  {t.total}: {formatPrice(cartTotal)}
+                </p>
+              )}
+              <button
+                type="button"
+                className="checkout"
+                disabled={cart.length === 0}
+                onClick={() => navigate("/checkout")}
+              >
+                {t.checkout}
+              </button>
             </div>
           </div>
         </div>

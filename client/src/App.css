@@ -160,10 +160,74 @@ body {
   box-shadow: 0 0 10px var(--primary);
 }
 
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.auth-overlay {
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-modal {
+  width: min(400px, calc(100vw - 32px));
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  animation: none;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.auth-form input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.auth-error {
+  margin: 0;
+  color: #ff6b6b;
+  font-size: 14px;
+}
+
+.auth-switch {
+  margin-top: 12px;
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cart-total {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+
 .subbar {
   display: flex;
   gap: 10px;
-  padding: 0 20px 15px;
+  padding: 0 0 15px;
   overflow-x: auto;
 }
 

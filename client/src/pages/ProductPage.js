@@ -1,52 +1,93 @@
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import api from "../api/axios";
+import { useProducts } from "../context/ProductsContext";
+import { readCart, writeCart } from "../utils/cart";
+import { formatPrice } from "../utils/formatPrice";
 
-export default function ProductPage({ products, onAddToCart }) {
+export default function ProductPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { products } = useProducts();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const product = products.find(
-    (p) => String(p._id) === id
-  );
+  useEffect(() => {
+    const fromList = products.find((p) => String(p._id) === id);
+    if (fromList) {
+      setProduct(fromList);
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    api
+      .get(`/products/${id}`)
+      .then((res) => {
+        if (!cancelled) setProduct(res.data);
+      })
+      .catch(() => {
+        if (!cancelled) setProduct(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, products]);
+
+  function handleAddToCart() {
+    if (!product) return;
+    const next = [...readCart(), product];
+    writeCart(next);
+    navigate("/");
+  }
+
+  if (loading) {
+    return <div className="product-page">Загрузка…</div>;
+  }
 
   if (!product) {
-    return <div>Product not found</div>;
+    return (
+      <div className="product-page">
+        <p>Товар не найден</p>
+        <Link to="/">← На главную</Link>
+      </div>
+    );
   }
 
   return (
     <div className="product-page">
+      <Link to="/" className="orders-back">
+        ← На главную
+      </Link>
 
-      {/* LEFT */}
       <div className="product-gallery">
-        <img
-          src={product.image}
-          alt={product.name}
-        />
+        <img src={product.image} alt={product.name} />
       </div>
 
-      {/* RIGHT */}
       <div className="product-info">
-
         <div className="product-category">
           {product.category}
+          {product.subcategory ? ` · ${product.subcategory}` : ""}
         </div>
 
         <h1>{product.name}</h1>
 
-        <div className="product-price">
-          ${product.price}
-        </div>
+        <div className="product-price">{formatPrice(product.price)}</div>
 
         <p className="product-description">
-          Premium quality product with modern design,
-          fast delivery and excellent user experience.
+          Качественный товар с быстрой доставкой. Данные загружены из базы
+          магазина.
         </p>
 
-        <button
-          className="buy-btn"
-          onClick={() => onAddToCart(product)}
-        >
-          Add to cart
+        <button type="button" className="buy-btn" onClick={handleAddToCart}>
+          В корзину
         </button>
-
       </div>
     </div>
   );
