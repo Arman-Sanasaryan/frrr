@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
 
-const socketUrl = process.env.REACT_APP_API_URL || "http://localhost:3000";
+import { getApiBaseUrl } from "../api/config";
+
+const socketUrl = getApiBaseUrl();
 
 export default function ChatWidget() {
   const [messages, setMessages] = useState([]);

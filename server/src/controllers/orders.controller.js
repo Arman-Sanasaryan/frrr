@@ -19,8 +19,8 @@ async function createOrderController(req, res) {
       quantity: 1
     })),
     mode: "payment",
-    success_url: `${req.staticBaseUrl}/success.html`,
-    cancel_url: `${req.staticBaseUrl}/cancel.html`
+    success_url: `${req.publicBaseUrl}/success`,
+    cancel_url: `${req.publicBaseUrl}/cancel`
   });
 
   res.json({ url: session.url });

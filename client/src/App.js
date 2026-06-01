@@ -15,6 +15,7 @@ import CancelPage from "./pages/CancelPage";
 import Quantility from "./pages/Quantility";
 import Checkout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/orders" element={<MyOrders />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/cancel" element={<CancelPage />} />
         <Route path="/quantility" element={<Quantility />} />

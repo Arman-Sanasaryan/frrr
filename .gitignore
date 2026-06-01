@@ -1,5 +1,7 @@
 node_modules/
 server/.env
+server/.env.production
+client/.env.local
 server/data/*.sqlite
 server/data/*.sqlite-wal
 server/data/*.sqlite-shm

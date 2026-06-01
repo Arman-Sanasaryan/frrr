@@ -1,31 +1,31 @@
 # frrr
 
-React client + Node/Express API for an online store.
+React + Node/Express store (Luvé on Store).
 
-## Requirements
+## Local development
 
-- Node.js 22+
+```bash
+npm install
+npm --prefix server install
+npm --prefix client install
+npm run start-all
+```
 
-## Quick start
+- Store: http://localhost:3001  
+- API: http://localhost:4000  
 
-1. Install dependencies:
-   - `npm install` (root)
-   - `npm --prefix server install`
-   - `npm --prefix client install`
-2. Copy `server/.env.example` to `server/.env` and fill in your secrets.
-3. Run: `npm run start-all`
+## Production (www.aaaurrrssimpire.org)
 
-## Local URLs
+See [deploy/DEPLOY.md](deploy/DEPLOY.md).
 
-- Store: http://localhost:3001
-- API: http://localhost:4000
-- Health check: http://localhost:4000/health
+```bash
+npm run start:prod
+```
 
-## Features
+Builds the client with `REACT_APP_API_URL=https://www.aaaurrrssimpire.org` and runs the API + static site on port **4000**.
 
-- Product catalog (`GET /products`)
-- Registration / login
-- Cart and crypto checkout
-- My orders (`/orders`) after login
+## Google sign-in
 
-Data is stored locally in SQLite (file is created automatically; not committed to git).
+Add redirect URI in Google Console:
+
+`https://www.aaaurrrssimpire.org/auth/google/callback`

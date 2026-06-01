@@ -47,7 +47,10 @@ function parseUserRow(row) {
   return {
     _id: String(row.id),
     email: row.email,
-    password: row.password
+    password: row.password,
+    name: row.name || "",
+    googleId: row.google_id || "",
+    avatarUrl: row.avatar_url || ""
   };
 }
 

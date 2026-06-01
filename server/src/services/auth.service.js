@@ -5,8 +5,40 @@ const User = require("../repositories/user.repository");
 function toSafeUser(user) {
   return {
     id: String(user._id),
-    email: user.email
+    email: user.email,
+    name: user.name || "",
+    avatarUrl: user.avatarUrl || ""
   };
+}
+
+function issueTokens({
+  userId,
+  jwtSecret,
+  accessTokenExpiresIn,
+  refreshTokenExpiresIn
+}) {
+  const token = jwt.sign({ id: userId }, jwtSecret, {
+    expiresIn: accessTokenExpiresIn
+  });
+  const refreshToken = jwt.sign({ id: userId }, jwtSecret, {
+    expiresIn: refreshTokenExpiresIn
+  });
+  return { token, refreshToken };
+}
+
+function createAuthResult({
+  user,
+  jwtSecret,
+  accessTokenExpiresIn,
+  refreshTokenExpiresIn
+}) {
+  const { token, refreshToken } = issueTokens({
+    userId: user._id,
+    jwtSecret,
+    accessTokenExpiresIn,
+    refreshTokenExpiresIn
+  });
+  return { token, refreshToken, user: toSafeUser(user) };
 }
 
 async function loginByEmailPassword({
@@ -17,18 +49,21 @@ async function loginByEmailPassword({
   refreshTokenExpiresIn
 }) {
   const user = User.findOne({ email });
-  if (!user) return null;
+  if (!user || !user.password) {
+    return null;
+  }
 
   const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return null;
+  if (!ok) {
+    return null;
+  }
 
-  const token = jwt.sign({ id: user._id }, jwtSecret, {
-    expiresIn: accessTokenExpiresIn
+  return createAuthResult({
+    user,
+    jwtSecret,
+    accessTokenExpiresIn,
+    refreshTokenExpiresIn
   });
-  const refreshToken = jwt.sign({ id: user._id }, jwtSecret, {
-    expiresIn: refreshTokenExpiresIn
-  });
-  return { token, refreshToken, user: toSafeUser(user) };
 }
 
 function refreshAccessToken({ refreshToken, jwtSecret, accessTokenExpiresIn }) {
@@ -39,10 +74,17 @@ function refreshAccessToken({ refreshToken, jwtSecret, accessTokenExpiresIn }) {
   return { token };
 }
 
-async function registerUser({ email, password }) {
+async function registerUser({ email, password, name }) {
+  const trimmedName = String(name || "").trim();
+  if (!trimmedName) {
+    const error = new Error("Name is required");
+    error.status = 400;
+    throw error;
+  }
+
   const hash = await bcrypt.hash(password, 8);
   try {
-    User.insert({ email, password: hash });
+    return User.insert({ email, password: hash, name: trimmedName });
   } catch (error) {
     if (String(error.message).includes("UNIQUE")) {
       const err = new Error("Email already registered");
@@ -53,8 +95,31 @@ async function registerUser({ email, password }) {
   }
 }
 
+function loginGoogleUser({
+  profile,
+  jwtSecret,
+  accessTokenExpiresIn,
+  refreshTokenExpiresIn
+}) {
+  const user = User.upsertGoogleUser({
+    googleId: profile.id,
+    email: profile.email,
+    name: profile.name,
+    avatarUrl: profile.picture
+  });
+
+  return createAuthResult({
+    user,
+    jwtSecret,
+    accessTokenExpiresIn,
+    refreshTokenExpiresIn
+  });
+}
+
 module.exports = {
   loginByEmailPassword,
   refreshAccessToken,
-  registerUser
+  registerUser,
+  loginGoogleUser,
+  toSafeUser
 };
