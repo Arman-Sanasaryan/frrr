@@ -2,14 +2,17 @@ import { useContext, useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import ChatWidget from "../components/ChatWidget";
+import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
 import { readCart, writeCart, getCartTotal } from "../utils/cart";
 import { formatPrice } from "../utils/formatPrice";
+import { getDisplayName } from "../utils/displayName";
 import categoryConfig from "../data/categoryConfig";
 
 export default function Home() {
-  const { user, logout, login, register } = useContext(AuthContext);
+  const { user, logout, login, register, startGoogleLogin } =
+    useContext(AuthContext);
   const { products, loading: productsLoading } = useProducts();
   const navigate = useNavigate();
 
@@ -27,8 +30,10 @@ export default function Home() {
   const [chatOpen, setChatOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
+  const [authName, setAuthName] = useState("");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [googleAuthEnabled, setGoogleAuthEnabled] = useState(false);
   const [authError, setAuthError] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [subcategory, setSubcategory] = useState("");
@@ -38,6 +43,13 @@ export default function Home() {
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    api
+      .get("/auth/providers")
+      .then((res) => setGoogleAuthEnabled(Boolean(res.data?.google)))
+      .catch(() => setGoogleAuthEnabled(false));
+  }, []);
 
   function toggleTheme() {
     const currentIndex = themes.indexOf(theme);
@@ -68,8 +80,11 @@ export default function Home() {
       lang === "ru" ? "Товары не найдены" : "No products match your filters",
     loginTitle: lang === "ru" ? "Вход" : "Sign in",
     registerTitle: lang === "ru" ? "Регистрация" : "Register",
+    name: lang === "ru" ? "Имя" : "Name",
     email: lang === "ru" ? "Email" : "Email",
     password: lang === "ru" ? "Пароль" : "Password",
+    googleSignIn: lang === "ru" ? "Войти через Google" : "Sign in with Google",
+    or: lang === "ru" ? "или" : "or",
     submitLogin: lang === "ru" ? "Войти" : "Sign in",
     submitRegister: lang === "ru" ? "Создать аккаунт" : "Create account",
     switchToRegister:
@@ -132,6 +147,7 @@ export default function Home() {
 
   function closeAuth() {
     setAuthOpen(false);
+    setAuthName("");
     setAuthEmail("");
     setAuthPassword("");
     setAuthError("");
@@ -144,7 +160,7 @@ export default function Home() {
 
     try {
       if (authMode === "register") {
-        await register(authEmail, authPassword);
+        await register(authEmail, authPassword, authName);
         await login(authEmail, authPassword);
       } else {
         await login(authEmail, authPassword);
@@ -174,7 +190,17 @@ export default function Home() {
   return (
     <div>
       <div className="topbar">
-        <div>{user?.email || t.guest}</div>
+        <div className="topbar-user">
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt=""
+              className="user-avatar"
+              referrerPolicy="no-referrer"
+            />
+          ) : null}
+          <span>{user ? getDisplayName(user) : t.guest}</span>
+        </div>
 
         <div className="topbar-actions">
           <select value={lang} onChange={(e) => setLang(e.target.value)}>
@@ -356,7 +382,33 @@ export default function Home() {
               </button>
             </div>
 
+            {googleAuthEnabled && (
+              <>
+                <button
+                  type="button"
+                  className="google-signin"
+                  onClick={startGoogleLogin}
+                >
+                  {t.googleSignIn}
+                </button>
+                <p className="auth-divider">{t.or}</p>
+              </>
+            )}
+
             <form className="auth-form" onSubmit={handleAuthSubmit}>
+              {authMode === "register" && (
+                <label>
+                  {t.name}
+                  <input
+                    type="text"
+                    value={authName}
+                    onChange={(e) => setAuthName(e.target.value)}
+                    required
+                    autoComplete="name"
+                  />
+                </label>
+              )}
+
               <label>
                 {t.email}
                 <input

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api/axios";
 import { formatPrice } from "../utils/formatPrice";
+import { getDisplayName } from "../utils/displayName";
 import "../styles/pages/orders.css";
 
 function formatDate(value) {
@@ -41,7 +42,10 @@ export default function MyOrders() {
           ← В магазин
         </Link>
         <h1>Мои заказы</h1>
-        <p className="orders-user">{user.email}</p>
+        <p className="orders-user">
+          {getDisplayName(user)}
+          {user.email ? ` · ${user.email}` : ""}
+        </p>
 
         {loading && <p className="orders-muted">Загрузка…</p>}
         {error && <p className="orders-error">{error}</p>}

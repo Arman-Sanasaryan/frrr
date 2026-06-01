@@ -37,7 +37,8 @@ app.get("/health", (_req, res) => {
 app.use(createAuthRouter({
   jwtSecret: env.JWT_SECRET,
   accessTokenExpiresIn: env.ACCESS_TOKEN_EXPIRES_IN,
-  refreshTokenExpiresIn: env.REFRESH_TOKEN_EXPIRES_IN
+  refreshTokenExpiresIn: env.REFRESH_TOKEN_EXPIRES_IN,
+  env
 }));
 const auth = createAuthMiddleware(env.JWT_SECRET);
 const optionalAuth = createOptionalAuthMiddleware(env.JWT_SECRET);
