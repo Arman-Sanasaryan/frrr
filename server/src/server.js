@@ -1,7 +1,7 @@
 const http = require("http");
 const { Server } = require("socket.io");
 const { app, PORT, registerSocketHandlers } = require("./app");
-const { initDatabase, isDatabaseReady, getDbPath } = require("./db");
+const { initDatabase, isDatabaseReady } = require("./db");
 const { seedProductsIfEmpty } = require("./db/seed");
 
 const httpServer = http.createServer(app);
@@ -31,8 +31,6 @@ function start() {
 
   httpServer.listen(PORT, () => {
     console.log(`Server listening on http://localhost:${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
-    console.log(`Database file: ${getDbPath()}`);
     console.log(`Database ready: ${isDatabaseReady()}`);
   });
 }

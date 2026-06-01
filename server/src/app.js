@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const Stripe = require("stripe");
-const { isDatabaseReady, getDbPath } = require("./db");
+const { isDatabaseReady } = require("./db");
 const { createAuthRouter } = require("./routes/auth.routes");
 const {
   createAuthMiddleware,
@@ -31,8 +31,7 @@ app.use("/uploads", express.static("uploads"));
 app.get("/health", (_req, res) => {
   res.json({
     ok: true,
-    db: isDatabaseReady() ? "connected" : "disconnected",
-    dbPath: getDbPath()
+    db: isDatabaseReady() ? "connected" : "disconnected"
   });
 });
 app.use(createAuthRouter({
