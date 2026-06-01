@@ -1,9 +1,10 @@
 import { createContext, useState } from "react";
 import api from "../api/axios";
+import { getApiBaseUrl } from "../api/config";
 
 export const AuthContext = createContext();
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 function readStoredUser() {
   const email = localStorage.getItem("userEmail");

@@ -1,7 +1,8 @@
 const express = require("express");
-const cors = require("cors");
 const Stripe = require("stripe");
 const { isDatabaseReady } = require("./db");
+const { createCorsMiddleware } = require("./middleware/cors");
+const { createServeClientMiddleware } = require("./middleware/serveClient");
 const { createAuthRouter } = require("./routes/auth.routes");
 const {
   createAuthMiddleware,
@@ -24,7 +25,8 @@ configurePush({
 });
 
 const app = express();
-app.use(cors());
+app.set("trust proxy", 1);
+app.use(createCorsMiddleware());
 app.use("/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
@@ -43,7 +45,7 @@ app.use(createAuthRouter({
 const auth = createAuthMiddleware(env.JWT_SECRET);
 const optionalAuth = createOptionalAuthMiddleware(env.JWT_SECRET);
 app.use(createCryptoRouter({ optionalAuth, cryptoEnv: env }));
-app.use(createOrdersRouter({ auth, stripe, staticBaseUrl: env.STATIC_BASE_URL }));
+app.use(createOrdersRouter({ auth, stripe, publicBaseUrl: env.PUBLIC_BASE_URL }));
 app.use(createProductsRouter({ auth, publicBaseUrl: env.PUBLIC_BASE_URL }));
 app.use(createReviewsRouter());
 app.use(createPaymentsRouter({
@@ -51,6 +53,10 @@ app.use(createPaymentsRouter({
   stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
   publicBaseUrl: env.PUBLIC_BASE_URL
 }));
+
+if (env.SERVE_CLIENT) {
+  app.use(createServeClientMiddleware());
+}
 
 function registerSocketHandlers(io) {
   io.on("connection", socket => {
@@ -63,5 +69,6 @@ function registerSocketHandlers(io) {
 module.exports = {
   app,
   PORT: env.PORT,
+  env,
   registerSocketHandlers
 };

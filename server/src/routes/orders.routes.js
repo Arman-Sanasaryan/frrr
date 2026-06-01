@@ -6,12 +6,12 @@ const {
   listMyOrdersController
 } = require("../controllers/orders.controller");
 
-function createOrdersRouter({ auth, stripe, staticBaseUrl }) {
+function createOrdersRouter({ auth, stripe, publicBaseUrl }) {
   const router = express.Router();
 
   router.use((req, _res, next) => {
     req.stripe = stripe;
-    req.staticBaseUrl = staticBaseUrl;
+    req.publicBaseUrl = publicBaseUrl;
     next();
   });
 

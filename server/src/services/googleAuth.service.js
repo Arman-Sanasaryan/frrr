@@ -3,10 +3,7 @@ function isGoogleAuthConfigured(env) {
 }
 
 function getGoogleRedirectUri(env) {
-  return (
-    env.GOOGLE_CALLBACK_URL ||
-    `http://localhost:${env.PORT}/auth/google/callback`
-  );
+  return env.GOOGLE_CALLBACK_URL;
 }
 
 function buildGoogleAuthUrl(env) {

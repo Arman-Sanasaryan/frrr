@@ -1,11 +1,21 @@
 const http = require("http");
 const { Server } = require("socket.io");
-const { app, PORT, registerSocketHandlers } = require("./app");
+const { app, PORT, env, registerSocketHandlers } = require("./app");
 const { initDatabase, isDatabaseReady } = require("./db");
 const { seedProductsIfEmpty } = require("./db/seed");
 
 const httpServer = http.createServer(app);
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+  cors: {
+    origin: [
+      env.PUBLIC_BASE_URL,
+      "https://www.aaaurrrssimpire.org",
+      "https://aaaurrrssimpire.org",
+      "http://localhost:3001"
+    ],
+    methods: ["GET", "POST"]
+  }
+});
 
 registerSocketHandlers(io);
 
@@ -30,8 +40,13 @@ function start() {
   });
 
   httpServer.listen(PORT, () => {
-    console.log(`Server listening on http://localhost:${PORT}`);
+    console.log(`Server listening on port ${PORT}`);
+    console.log(`Public site: ${env.PUBLIC_BASE_URL}`);
+    if (env.GOOGLE_CLIENT_ID) {
+      console.log(`Google callback: ${env.GOOGLE_CALLBACK_URL}`);
+    }
     console.log(`Database ready: ${isDatabaseReady()}`);
+    console.log(`Serve client build: ${env.SERVE_CLIENT}`);
   });
 }
 
