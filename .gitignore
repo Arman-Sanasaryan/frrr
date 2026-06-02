@@ -1,7 +1,0 @@
-node_modules/
-server/.env
-server/data/*.sqlite
-server/data/*.sqlite-wal
-server/data/*.sqlite-shm
-client/node_modules/
-server/node_modules/

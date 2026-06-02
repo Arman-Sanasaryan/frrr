@@ -1,0 +1,11 @@
+html,body,#app{height:100%;margin:0}
+body{background:#000;color:#fff;font-family:sans-serif}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
+.hidden{display:none}
+input{padding:8px;margin:8px;border-radius:4px;border:1px solid #444;background:#111;color:#fff}
+button{padding:8px 12px;margin:8px;border-radius:4px;border:none;background:#1a73e8;color:#fff}
+#products{display:flex;gap:12px;flex-wrap:wrap;padding:20px}
+.product{background:#111;padding:12px;border:1px solid #222;border-radius:6px;width:200px}
+.chat-header{position:fixed;left:0;right:0;top:0;background:#111;padding:10px;display:flex;justify-content:space-between}
+#chat-box{margin-top:60px;padding:10px;height:60vh;overflow:auto}
+.chat-input{position:fixed;left:0;right:0;bottom:0;padding:10px;background:#000;display:flex;gap:8px}

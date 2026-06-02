@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wholesale Store</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="welcome-screen" class="center">
+      <h1>Добро пожаловать</h1>
+      <p>Введите ваше имя для отображения</p>
+      <input id="name-input" placeholder="Ваше имя" />
+      <button id="enter-btn">Продолжить</button>
+    </div>
+
+    <div id="main-screen" class="hidden">
+      <header>
+        <h2 id="greeting"></h2>
+      </header>
+      <main>
+        <div id="products"></div>
+      </main>
+    </div>
+
+    <div id="chat-screen" class="hidden">
+      <div class="chat-header">Чат с продавцом<button id="close-chat">✕</button></div>
+      <div id="chat-box"></div>
+      <div class="chat-input">
+        <input id="chat-msg" placeholder="Введите сообщение" />
+        <button id="send-msg">Отправить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
