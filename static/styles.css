@@ -1,11 +1,100 @@
-html,body,#app{height:100%;margin:0}
-body{background:#000;color:#fff;font-family:sans-serif}
-.center{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
+/* Modern dark theme for Wholesale Collective */
+:root{
+	--bg:#0f1720;
+	--panel:#0b1220;
+	--muted:#9aa4b2;
+	--accent:#6ee7b7;
+	--accent-2:#60a5fa;
+	--glass: rgba(255,255,255,0.03);
+	--radius:14px;
+	--mono: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+}
+*{box-sizing:border-box}
+html,body,#app{height:100%}
+body{
+	margin:0;
+	background:linear-gradient(180deg,#071021 0%,#0b1724 100%);
+	color:#e6eef6;
+	font-family:var(--mono);
+	-webkit-font-smoothing:antialiased;
+}
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:220px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:28px;display:flex;flex-direction:column;gap:24px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#042;}
+.title{font-size:16px;font-weight:700}
+.nav{display:flex;flex-direction:column;gap:8px}
+.nav-item{padding:10px 12px;border-radius:10px;color:var(--muted);cursor:pointer}
+.nav-item.active{background:var(--glass);color:var(--accent)}
+.side-footer{margin-top:auto;color:var(--muted);font-size:12px}
+.main{flex:1;padding:28px}
+.panel{background:linear-gradient(180deg,transparent,rgba(255,255,255,0.01));border-radius:16px;padding:28px;backdrop-filter: blur(6px)}
+.center-panel{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;min-height:60vh}
+.hero{font-size:36px;margin:0}
+.lead{color:var(--muted);margin:0}
+.input-row{display:flex;gap:12px;margin-top:12px}
+input#name-input{padding:12px 16px;border-radius:12px;border:none;outline:none;background:rgba(255,255,255,0.03);color:inherit;width:320px}
+.btn{padding:10px 14px;border-radius:12px;border:none;background:transparent;color:inherit;cursor:pointer}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#042;font-weight:700}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+.grid{display:flex;flex-direction:column;gap:18px}
+.main-header{display:flex;justify-content:space-between;align-items:center}
+.products-wrap{margin-top:12px}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.product{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);} 
+.product h4{margin:0 0 8px 0}
+.product p{margin:0 0 12px 0;color:var(--muted)}
+.product button{padding:8px 12px;border-radius:10px;border:none;background:var(--accent);color:#042;font-weight:700}
+.chat-panel{position:fixed;right:28px;bottom:28px;width:360px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px;padding:12px;box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+.chat-top{display:flex;justify-content:space-between;align-items:center;padding:8px}
+.chat-title{font-weight:700}
+.chat-box{height:300px;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.chat-box p{margin:0;padding:10px;border-radius:10px;max-width:80%}
+.chat-box p.incoming{background:rgba(255,255,255,0.03);align-self:flex-start}
+.chat-box p.outgoing{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#042;align-self:flex-end}
+.chat-input{display:flex;gap:8px;padding:8px}
+.chat-input input{flex:1;padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:inherit}
+.chat-input .btn.primary{padding:10px 14px}
 .hidden{display:none}
-input{padding:8px;margin:8px;border-radius:4px;border:1px solid #444;background:#111;color:#fff}
-button{padding:8px 12px;margin:8px;border-radius:4px;border:none;background:#1a73e8;color:#fff}
-#products{display:flex;gap:12px;flex-wrap:wrap;padding:20px}
-.product{background:#111;padding:12px;border:1px solid #222;border-radius:6px;width:200px}
-.chat-header{position:fixed;left:0;right:0;top:0;background:#111;padding:10px;display:flex;justify-content:space-between}
-#chat-box{margin-top:60px;padding:10px;height:60vh;overflow:auto}
-.chat-input{position:fixed;left:0;right:0;bottom:0;padding:10px;background:#000;display:flex;gap:8px}
+@media (max-width:900px){.sidebar{display:none}.chat-panel{right:12px;left:12px;width:auto}.products{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}
+
+/* Welcome overlay (full-screen) */
+.welcome-overlay{
+	position:fixed;
+	inset:0;
+	background:#000;
+	z-index:2000;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+}
+.welcome-panel{
+	text-align:center;
+	color:#fff;
+	transform-origin:center;
+}
+.welcome-panel .hero{font-size:40px;letter-spacing:0.6px}
+.welcome-panel .lead{color:var(--muted);margin-top:8px}
+.welcome-panel .input-row{justify-content:center}
+
+/* Animations */
+.overlay-in{animation:overlayIn 600ms cubic-bezier(.2,.9,.2,1) forwards}
+.overlay-out{animation:overlayOut 600ms cubic-bezier(.2,.9,.2,1) forwards}
+.main-enter{animation:mainEnter 600ms cubic-bezier(.2,.9,.2,1) forwards}
+
+@keyframes overlayIn{
+	from{opacity:0;transform:scale(0.98)}
+	to{opacity:1;transform:scale(1)}
+}
+@keyframes overlayOut{
+	from{opacity:1;transform:scale(1)}
+	to{opacity:0;transform:scale(0.98)}
+}
+@keyframes mainEnter{
+	from{opacity:0;transform:translateY(8px) scale(0.995)}
+	to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* Smooth button hover */
+.btn{transition:transform .12s ease, box-shadow .12s ease}
+.btn:hover{transform:translateY(-3px)}

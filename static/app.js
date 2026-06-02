@@ -18,11 +18,29 @@
   const sendBtn = qs('#send-msg');
   const closeChat = qs('#close-chat');
 
+  // Polling state and shown message ids (declare early to avoid reference errors)
+  let polling = false;
+  const shownMessageIds = new Set();
+
   function showMain(name){
-    greeting.textContent = `Привет, ${name}! Выберите товар:`;
-    welcome.classList.add('hidden');
-    main.classList.remove('hidden');
-    renderProducts();
+    greeting.textContent = `Hello, ${name}! Choose a product:`;
+    // play overlay out animation if present
+    const overlay = document.getElementById('welcome-overlay');
+    if(overlay){
+      overlay.classList.remove('overlay-in');
+      overlay.classList.add('overlay-out');
+      // wait for animation to finish then remove overlay and show main
+      overlay.addEventListener('animationend', ()=>{
+        overlay.parentNode.removeChild(overlay);
+        main.classList.remove('hidden');
+        main.classList.add('main-enter');
+        renderProducts();
+      }, { once: true });
+    } else {
+      welcome.classList.add('hidden');
+      main.classList.remove('hidden');
+      renderProducts();
+    }
   }
 
   function renderProducts(){
@@ -42,12 +60,12 @@
 
   function openChatForProduct(productId){
     const p = PRODUCTS.find(x=>x.id===productId);
-    chatBox.innerHTML = `<p>Запрос по: <strong>${p.name}</strong> — пожалуйста свяжитесь с продавцом.</p>`;
+    chatBox.innerHTML = `<p>Request for: <strong>${p.name}</strong> — please contact the seller.</p>`;
     main.classList.add('hidden');
     chat.classList.remove('hidden');
     // send initial message to server to forward to Telegram
-    const buyer = localStorage.getItem('buyerName')||'Гость';
-    const message = `${buyer} выбрал ${p.name} (id:${p.id}). Ожидает связи.`;
+    const buyer = localStorage.getItem('buyerName')||'Guest';
+    const message = `${buyer} selected ${p.name} (id:${p.id}). Awaiting contact.`;
     const headers = {'Content-Type':'application/json'};
     if(window.SHOP_CONFIG && window.SHOP_CONFIG.SHOP_SECRET){
       headers['Authorization'] = `Bearer ${window.SHOP_CONFIG.SHOP_SECRET}`;
@@ -59,7 +77,7 @@
 
   enterBtn.addEventListener('click', ()=>{
     const name = nameInput.value && nameInput.value.trim();
-    if(!name) return alert('Введите имя');
+    if(!name) return alert('Please enter your name');
     localStorage.setItem('buyerName', name);
     showMain(name);
   });
@@ -86,23 +104,17 @@
     stopPollingMessages();
   });
 
-  // on load, if buyerName present, go directly to main
+  // on load, do not prefill the name input (always ask for name)
   const existing = localStorage.getItem('buyerName');
-  if(existing){
-    nameInput.value = existing;
-    showMain(existing);
-  }
+  // intentionally do not set nameInput.value here so user must re-enter or confirm
 
   // Seed shownMessageIds from any existing DOM messages (if page reloaded)
   Array.from(chatBox.querySelectorAll('p')).forEach((p)=>{
-    // try to parse an id from data-id attribute (if present)
     const id = p.getAttribute('data-msg-id');
     if(id) shownMessageIds.add(Number(id));
   });
 
   // Poll server for incoming telegram messages and append them
-  let polling = false;
-  const shownMessageIds = new Set();
   async function startPollingMessages(){
     if(polling) return;
     polling = true;
