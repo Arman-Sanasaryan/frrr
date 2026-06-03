@@ -85,6 +85,16 @@ body{
 	border: none;
 	box-shadow: none;
 }
+
+/* Ensure the inner .panel used for the welcome screen fully blends with the overlay
+	 (override the generic .panel styles only inside the welcome overlay) */
+.welcome-overlay .panel{
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	backdrop-filter: none !important;
+	padding: 0 !important; /* outer .welcome-panel provides spacing */
+}
 .welcome-panel .hero{font-size:52px;letter-spacing:1.6px;font-weight:900;color:var(--electric);text-transform:none;white-space:pre-wrap}
 .welcome-panel .lead{color:var(--muted);margin-top:8px}
 .welcome-panel .input-row{justify-content:center}
