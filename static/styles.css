@@ -80,6 +80,10 @@ body{
 	transform-origin:center;
 	position:relative;
 	padding:40px;
+	/* blend the welcome panel with the overlay: no distinct panel background */
+	background: transparent;
+	border: none;
+	box-shadow: none;
 }
 .welcome-panel .hero{font-size:52px;letter-spacing:1.6px;font-weight:900;color:var(--electric);text-transform:none;white-space:pre-wrap}
 .welcome-panel .lead{color:var(--muted);margin-top:8px}
