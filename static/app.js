@@ -32,12 +32,21 @@
       // wait for animation to finish then remove overlay and show main
       overlay.addEventListener('animationend', ()=>{
         overlay.parentNode.removeChild(overlay);
+        // reveal app chrome that was hidden to prevent flash of products
+        const sidebar = document.querySelector('.sidebar');
+        if(sidebar) sidebar.style.display = '';
+        const chatScreen = document.getElementById('chat-screen');
+        if(chatScreen) chatScreen.style.display = '';
+        main.style.display = '';
         main.classList.remove('hidden');
         main.classList.add('main-enter');
         renderProducts();
       }, { once: true });
     } else {
       welcome.classList.add('hidden');
+      const sidebar = document.querySelector('.sidebar'); if(sidebar) sidebar.style.display = '';
+      const chatScreen = document.getElementById('chat-screen'); if(chatScreen) chatScreen.style.display = '';
+      main.style.display = '';
       main.classList.remove('hidden');
       renderProducts();
     }

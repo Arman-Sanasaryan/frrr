@@ -10,7 +10,7 @@
   </head>
   <body>
     <div id="app" class="wrap">
-      <aside class="sidebar">
+  <aside class="sidebar" style="display:none;">
         <div class="brand">
           <div class="logo">AURSss</div>
           <div class="title">AAAURRRSSIMPIRE</div>
@@ -23,20 +23,7 @@
         <footer class="side-footer">Secure crypto & telegram support</footer>
       </aside>
 
-      <main class="main">
-        <!-- Fullscreen welcome overlay -->
-        <div class="welcome-overlay overlay-in" id="welcome-overlay">
-          <div class="welcome-panel">
-            <section id="welcome-screen" class="panel center-panel">
-              <h1 class="hero">wHooo aRrrre Юу???</h1>
-              <div class="input-row">
-                <input id="name-input" placeholder="????????" />
-                <button id="enter-btn" class="btn primary">Enterrr</button>
-              </div>
-            </section>
-          </div>
-        </div>
-
+  <main class="main" style="display:none;">
         <section id="main-screen" class="panel hidden grid">
           <header class="main-header">
             <h2 id="greeting" class="greeting">Hello</h2>
@@ -49,7 +36,19 @@
 
       </main>
 
-      <div id="chat-screen" class="chat-panel hidden">
+      <!-- Fullscreen welcome overlay (moved outside of .main so it remains visible while app chrome is hidden) -->
+      <div class="welcome-overlay overlay-in" id="welcome-overlay">
+        <div class="welcome-panel">
+          <section id="welcome-screen" class="panel center-panel">
+            <h1 class="hero">wHooo aRrrre Юу???</h1>
+            <div class="input-row">
+              <input id="name-input" placeholder="????????" />
+              <button id="enter-btn" class="btn primary">Enterrr</button>
+            </div>
+          </section>
+        </div>
+      </div>
+  <div id="chat-screen" class="chat-panel hidden" style="display:none;">
         <div class="chat-top">
           <div class="chat-title">Seller Chat</div>
           <button id="close-chat" class="btn icon">✕</button>
