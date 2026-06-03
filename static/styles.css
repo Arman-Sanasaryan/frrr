@@ -81,7 +81,7 @@ body{
 	position:relative;
 	padding:40px;
 }
-.welcome-panel .hero{font-size:52px;letter-spacing:1.6px;font-weight:900;color:var(--electric);text-transform:uppercase}
+.welcome-panel .hero{font-size:52px;letter-spacing:1.6px;font-weight:900;color:var(--electric);text-transform:none;white-space:pre-wrap}
 .welcome-panel .lead{color:var(--muted);margin-top:8px}
 .welcome-panel .input-row{justify-content:center}
 
