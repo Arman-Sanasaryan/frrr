@@ -39,22 +39,11 @@ async def index():
     return HTMLResponse(content=html, status_code=200)
 
 
-def check_secret(request: Request) -> bool:
-    auth = request.headers.get("authorization") or request.headers.get("Authorization")
-    header_secret = request.headers.get("X-SHOP-SECRET") or request.headers.get("x-shop-secret")
-    provided = None
-    if auth and auth.lower().startswith("bearer "):
-        provided = auth.split(" ", 1)[1].strip()
-    elif header_secret:
-        provided = header_secret.strip()
-    return bool(SHOP_SECRET and provided == SHOP_SECRET)
+
 
 
 @app.post("/notify")
 async def notify(request: Request):
-    if not check_secret(request):
-        return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
-
     payload = await request.json()
     message = payload.get("message")
     session_id = payload.get("session_id", "unknown")
@@ -92,9 +81,6 @@ async def get_messages(request: Request):
 
 @app.post("/messages/ack")
 async def ack_messages(request: Request):
-    if not check_secret(request):
-        return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
-
     payload = await request.json()
     session_id = payload.get("session_id", "")
     ids = payload.get("ids") or []
