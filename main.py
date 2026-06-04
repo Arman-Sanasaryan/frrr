@@ -11,12 +11,12 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 SHOP_SECRET = os.getenv("SHOP_SECRET", "")
 
-# in-memory storage for incoming telegram messages (simple, non-persistent)
-messages = []
+# session_id -> list of messages for that session
+sessions: dict[str, list] = {}
+
 last_update_id = None
 
 import asyncio
-
 
 app = FastAPI()
 
@@ -25,7 +25,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 async def index():
-    # serve index.html but inject SHOP_SECRET into a small JS config so frontend can read it
     try:
         with open("static/index.html", "r", encoding="utf-8") as f:
             html = f.read()
@@ -33,14 +32,14 @@ async def index():
         return FileResponse("static/index.html")
 
     injected = f"<script>window.SHOP_CONFIG = {{ SHOP_SECRET: '{SHOP_SECRET}' }};</script>"
-    # insert injected script before the main app script tag
-    html = html.replace("<script src=\"/static/app.js\"></script>", injected + "\n  <script src=\"/static/app.js\"></script>")
+    html = html.replace(
+        '<script src="/static/app.js"></script>',
+        injected + '\n  <script src="/static/app.js"></script>'
+    )
     return HTMLResponse(content=html, status_code=200)
 
 
-@app.post("/notify")
-async def notify(request: Request):
-    # simple secret check: either Authorization: Bearer <secret> or X-SHOP-SECRET header
+def check_secret(request: Request) -> bool:
     auth = request.headers.get("authorization") or request.headers.get("Authorization")
     header_secret = request.headers.get("X-SHOP-SECRET") or request.headers.get("x-shop-secret")
     provided = None
@@ -48,18 +47,32 @@ async def notify(request: Request):
         provided = auth.split(" ", 1)[1].strip()
     elif header_secret:
         provided = header_secret.strip()
-    if not SHOP_SECRET or provided != SHOP_SECRET:
+    return bool(SHOP_SECRET and provided == SHOP_SECRET)
+
+
+@app.post("/notify")
+async def notify(request: Request):
+    if not check_secret(request):
         return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
 
     payload = await request.json()
     message = payload.get("message")
-    subject = payload.get("subject")
+    session_id = payload.get("session_id", "unknown")
+
     if not message:
         return JSONResponse({"ok": False, "error": "message required"}, status_code=400)
 
+    # make sure session exists
+    if session_id not in sessions:
+        sessions[session_id] = []
+
+    # short 6-char tag for easy replies: /a3f2c1 text
+    tag = session_id[:6]
+    full_message = f"[{tag}] {message}"
+
     if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-        data = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
+        data = {"chat_id": TELEGRAM_CHAT_ID, "text": full_message}
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 resp = await client.post(url, json=data)
@@ -70,76 +83,84 @@ async def notify(request: Request):
     return JSONResponse({"ok": False, "error": "telegram not configured"}, status_code=400)
 
 
-@app.get('/messages')
-async def get_messages():
-    # return stored incoming messages
-    return JSONResponse({"ok": True, "messages": messages})
+@app.get("/messages")
+async def get_messages(request: Request):
+    session_id = request.query_params.get("session_id", "")
+    msgs = sessions.get(session_id, [])
+    return JSONResponse({"ok": True, "messages": msgs})
 
 
-@app.post('/messages/ack')
+@app.post("/messages/ack")
 async def ack_messages(request: Request):
-    # require same secret as /notify
-    auth = request.headers.get("authorization") or request.headers.get("Authorization")
-    header_secret = request.headers.get("X-SHOP-SECRET") or request.headers.get("x-shop-secret")
-    provided = None
-    if auth and auth.lower().startswith("bearer "):
-        provided = auth.split(" ", 1)[1].strip()
-    elif header_secret:
-        provided = header_secret.strip()
-    if not SHOP_SECRET or provided != SHOP_SECRET:
+    if not check_secret(request):
         return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
 
     payload = await request.json()
-    ids = payload.get('ids') or []
+    session_id = payload.get("session_id", "")
+    ids = payload.get("ids") or []
+
     if not isinstance(ids, list):
         return JSONResponse({"ok": False, "error": "ids must be a list"}, status_code=400)
-    # remove messages with these ids
-    global messages
-    messages = [m for m in messages if m.get('id') not in ids]
-    return JSONResponse({"ok": True, "remaining": len(messages)})
+
+    if session_id in sessions:
+        sessions[session_id] = [m for m in sessions[session_id] if m.get("id") not in ids]
+
+    return JSONResponse({"ok": True, "remaining": len(sessions.get(session_id, []))})
 
 
 async def poll_telegram_updates():
-    global last_update_id, messages
+    global last_update_id
     if not TELEGRAM_TOKEN:
         return
+
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates"
     async with httpx.AsyncClient(timeout=20.0) as client:
         while True:
-            params = {}
+            params = {"timeout": 10}
             if last_update_id is not None:
-                params['offset'] = last_update_id + 1
+                params["offset"] = last_update_id + 1
             try:
                 resp = await client.get(url, params=params)
                 data = resp.json()
-                if data.get('ok'):
-                    for upd in data.get('result', []):
-                        last_update_id = upd.get('update_id')
-                        msg = upd.get('message')
+                if data.get("ok"):
+                    for upd in data.get("result", []):
+                        last_update_id = upd.get("update_id")
+                        msg = upd.get("message")
                         if not msg:
                             continue
-                        chat = msg.get('chat', {})
-                        chat_id = chat.get('id')
-                        text = msg.get('text')
-                        if text is None:
+
+                        # only handle messages from our configured chat
+                        chat_id = msg.get("chat", {}).get("id")
+                        if str(chat_id) != str(TELEGRAM_CHAT_ID):
                             continue
-                        # only store messages for our configured chat id
-                        try:
-                            if str(chat_id) == str(TELEGRAM_CHAT_ID):
-                                messages.append({
-                                    'id': msg.get('message_id'),
-                                    'from': chat.get('first_name') or chat.get('username'),
-                                    'text': text
-                                })
-                        except Exception:
-                            pass
+
+                        text = msg.get("text", "")
+                        if not text:
+                            continue
+
+                        # parse owner replies: /a3f2c1 Hello there
+                        if text.startswith("/"):
+                            parts = text.split(" ", 1)
+                            tag = parts[0][1:]  # strip leading /
+                            reply_text = parts[1].strip() if len(parts) > 1 else ""
+                            if not reply_text:
+                                continue
+                            # find matching session by prefix
+                            for sid in list(sessions.keys()):
+                                if sid.startswith(tag):
+                                    sessions[sid].append({
+                                        "id": msg.get("message_id"),
+                                        "from": "Seller",
+                                        "text": reply_text,
+                                    })
+                                    break
+
                 await asyncio.sleep(2)
             except Exception:
                 await asyncio.sleep(5)
 
 
-@app.on_event('startup')
+@app.on_event("startup")
 async def start_polling():
-    # start background polling of Telegram updates
     if TELEGRAM_TOKEN:
         asyncio.create_task(poll_telegram_updates())
