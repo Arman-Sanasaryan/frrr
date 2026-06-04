@@ -1,7 +1,5 @@
-from flask import Flask, request, jsonify, send_from_directory, render_template_string
+from flask import Flask, request, jsonify, send_from_directory
 import os
-import threading
-import time
 import requests
 from dotenv import load_dotenv
 
@@ -12,7 +10,6 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
 # session_id -> list of messages
 sessions: dict = {}
-last_update_id = None
 
 app = Flask(__name__, static_folder='static')
 
@@ -21,10 +18,9 @@ app = Flask(__name__, static_folder='static')
 def index():
     try:
         with open('static/index.html', 'r', encoding='utf-8') as f:
-            html = f.read()
+            return f.read()
     except Exception:
         return send_from_directory('static', 'index.html')
-    return html
 
 
 @app.route('/static/<path:filename>')
@@ -72,59 +68,43 @@ def ack_messages():
     session_id = payload.get('session_id', '')
     ids = payload.get('ids') or []
 
-    if not isinstance(ids, list):
-        return jsonify({'ok': False, 'error': 'ids must be a list'}), 400
-
     if session_id in sessions:
         sessions[session_id] = [m for m in sessions[session_id] if m.get('id') not in ids]
 
     return jsonify({'ok': True, 'remaining': len(sessions.get(session_id, []))})
 
 
-def poll_telegram_updates():
-    global last_update_id
-    if not TELEGRAM_TOKEN:
-        return
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates"
-    while True:
-        params = {'timeout': 10}
-        if last_update_id is not None:
-            params['offset'] = last_update_id + 1
-        try:
-            resp = requests.get(url, params=params, timeout=20)
-            data = resp.json()
-            if data.get('ok'):
-                for upd in data.get('result', []):
-                    last_update_id = upd.get('update_id')
-                    msg = upd.get('message')
-                    if not msg:
-                        continue
-                    chat_id = msg.get('chat', {}).get('id')
-                    if str(chat_id) != str(TELEGRAM_CHAT_ID):
-                        continue
-                    text = msg.get('text', '')
-                    if not text:
-                        continue
-                    if text.startswith('/'):
-                        parts = text.split(' ', 1)
-                        tag = parts[0][1:]
-                        reply_text = parts[1].strip() if len(parts) > 1 else ''
-                        if not reply_text:
-                            continue
-                        for sid in list(sessions.keys()):
-                            if sid.startswith(tag):
-                                sessions[sid].append({
-                                    'id': msg.get('message_id'),
-                                    'from': 'Seller',
-                                    'text': reply_text,
-                                })
-                                break
-            time.sleep(2)
-        except Exception:
-            time.sleep(5)
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    data = request.get_json()
+    if not data:
+        return jsonify({'ok': True})
 
+    msg = data.get('message')
+    if not msg:
+        return jsonify({'ok': True})
 
-# start polling in background thread
-if TELEGRAM_TOKEN:
-    t = threading.Thread(target=poll_telegram_updates, daemon=True)
-    t.start()
+    chat_id = msg.get('chat', {}).get('id')
+    if str(chat_id) != str(TELEGRAM_CHAT_ID):
+        return jsonify({'ok': True})
+
+    text = msg.get('text', '')
+    if not text or not text.startswith('/'):
+        return jsonify({'ok': True})
+
+    parts = text.split(' ', 1)
+    tag = parts[0][1:]  # strip leading /
+    reply_text = parts[1].strip() if len(parts) > 1 else ''
+    if not reply_text:
+        return jsonify({'ok': True})
+
+    for sid in list(sessions.keys()):
+        if sid.startswith(tag):
+            sessions[sid].append({
+                'id': msg.get('message_id'),
+                'from': 'Seller',
+                'text': reply_text,
+            })
+            break
+
+    return jsonify({'ok': True})
