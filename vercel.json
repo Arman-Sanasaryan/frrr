@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/static/:path*", "destination": "https://arrrman-aaaurrrssimpire.hf.space/static/:path*" },
     { "source": "/(.*)", "destination": "https://arrrman-aaaurrrssimpire.hf.space/$1" }
   ]
 }
