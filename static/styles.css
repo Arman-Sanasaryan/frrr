@@ -1,3 +1,31 @@
+body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+
+.wrap { display: flex; min-height: 100vh; }
+
+.sidebar { width: 200px; padding: 16px; border-right: 1px solid #ccc; }
+.brand { margin-bottom: 16px; }
+.nav { display: flex; flex-direction: column; gap: 4px; }
+.nav-item { padding: 4px 0; cursor: pointer; }
+.side-footer { margin-top: auto; font-size: 12px; color: #666; padding-top: 16px; }
+
+.main { flex: 1; padding: 24px; }
+.main-header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+
+.products { display: flex; flex-direction: column; gap: 16px; max-width: 400px; }
+.product { padding: 12px; border: 1px solid #ccc; }
+.product h4 { margin: 0 0 4px; }
+.product p { margin: 0 0 8px; }
+
+.chat-panel { position: fixed; right: 24px; bottom: 24px; width: 320px; border: 1px solid #ccc; padding: 12px; background: #fff; }
+.chat-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.chat-box { height: 200px; overflow: auto; border: 1px solid #eee; padding: 8px; margin-bottom: 8px; }
+.chat-box p { margin: 4px 0; }
+.chat-input { display: flex; gap: 8px; }
+.chat-input input { flex: 1; padding: 6px; }
+
+.center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; }
+.input-row { display: flex; gap: 8px; }
+
 .hidden { display: none; }
 .overlay-in  { animation: overlayIn  700ms ease forwards; }
 .overlay-out { animation: overlayOut 700ms ease forwards; }
