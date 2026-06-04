@@ -28,7 +28,7 @@
     return sid;
   }
   const SESSION_ID = getSessionId();
-  const API_BASE = 'https://arrrman-aaaurrrssimpire.hf.space';
+  const API_BASE = 'https://arrrman.pythonanywhere.com';
 
   let polling = false;
   const shownMessageIds = new Set();
