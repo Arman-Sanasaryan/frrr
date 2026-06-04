@@ -67,6 +67,8 @@ async def notify(request: Request):
                 resp = await client.post(url, json=data)
                 return JSONResponse({"ok": True, "telegram": resp.json()})
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
     return JSONResponse({"ok": False, "error": "telegram not configured"}, status_code=400)
