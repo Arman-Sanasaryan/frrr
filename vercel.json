@@ -1,8 +1,0 @@
-{
-  "routes": [
-    { "src": "/notify", "dest": "https://arrrman-aaaurrrssimpire.hf.space/notify" },
-    { "src": "/messages", "dest": "https://arrrman-aaaurrrssimpire.hf.space/messages" },
-    { "src": "/messages/ack", "dest": "https://arrrman-aaaurrrssimpire.hf.space/messages/ack" },
-    { "src": "/", "dest": "https://arrrman-aaaurrrssimpire.hf.space/" }
-  ]
-}
