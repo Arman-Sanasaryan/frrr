@@ -28,6 +28,7 @@
     return sid;
   }
   const SESSION_ID = getSessionId();
+  const API_BASE = 'https://arrrman-aaaurrrssimpire.hf.space';
 
   let polling = false;
   const shownMessageIds = new Set();
@@ -98,7 +99,7 @@
     const buyer = localStorage.getItem('buyerName') || 'Guest';
     const message = `${buyer} selected ${p.name} (id:${p.id}). Awaiting contact.`;
 
-    fetch('/notify', {
+    fetch(API_BASE + '/notify', {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ message, session_id: SESSION_ID })
@@ -125,7 +126,7 @@
     chatBox.appendChild(p);
     chatMsg.value = '';
 
-    fetch('/notify', {
+    fetch(API_BASE + '/notify', {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ message, session_id: SESSION_ID })
@@ -151,7 +152,7 @@
     polling = true;
     try {
       while (polling) {
-        const res = await fetch(`/messages?session_id=${SESSION_ID}`);
+        const res = await fetch(API_BASE + `/messages?session_id=${SESSION_ID}`);
         if (!res.ok) break;
         const data = await res.json();
         if (data && data.messages && data.messages.length) {
@@ -168,7 +169,7 @@
             chatBox.appendChild(p);
           });
           if (newlyShown.length) {
-            fetch('/messages/ack', {
+            fetch(API_BASE + '/messages/ack', {
               method: 'POST',
               headers: authHeaders(),
               body: JSON.stringify({ ids: newlyShown, session_id: SESSION_ID })
