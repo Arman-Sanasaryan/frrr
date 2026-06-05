@@ -47,7 +47,7 @@
   }
 
   function showMain(name) {
-    greeting.textContent = `Hmmm, choOse, ${name}!:`;
+    greeting.textContent = `Hmmm, choOse... ${name}!`;
     const overlay = document.getElementById('welcome-overlay');
     if (overlay) {
       overlay.classList.remove('overlay-in');
@@ -82,7 +82,7 @@
     PRODUCTS.forEach(p => {
       const div = document.createElement('div');
       div.className = 'product';
-      div.innerHTML = `<h4>${p.name}</h4><p>Цена: ${p.price} AMD</p><button data-id="${p.id}">Выбрать</button>`;
+      div.innerHTML = `<h4>${p.name}</h4><p>Price: ${p.price} AMD</p><button data-id="${p.id}">Dis</button>`;
       productsEl.appendChild(div);
     });
     productsEl.querySelectorAll('button').forEach(btn => {
