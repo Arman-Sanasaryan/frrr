@@ -13,6 +13,25 @@ sessions: dict = {}
 
 app = Flask(__name__, static_folder='static')
 
+@app.after_request
+def add_cors(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    return response
+
+@app.route('/notify', methods=['OPTIONS'])
+def notify_options():
+    return add_cors(app.make_response(''))
+
+@app.route('/messages', methods=['OPTIONS'])
+def messages_options():
+    return add_cors(app.make_response(''))
+
+@app.route('/messages/ack', methods=['OPTIONS'])
+def ack_options():
+    return add_cors(app.make_response(''))
+
 
 @app.route('/')
 def index():
