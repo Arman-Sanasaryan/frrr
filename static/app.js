@@ -47,7 +47,7 @@
   }
 
   function showMain(name) {
-    greeting.textContent = `Hello, ${name}! Choose a product:`;
+    greeting.textContent = `Hmmm, choOse, ${name}!:`;
     const overlay = document.getElementById('welcome-overlay');
     if (overlay) {
       overlay.classList.remove('overlay-in');
