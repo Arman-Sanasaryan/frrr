@@ -23,7 +23,7 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
 .chat-input { display: flex; gap: 8px; }
 .chat-input input { flex: 1; padding: 6px; }
 
-.center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; }
+.center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 16px; }
 .input-row { display: flex; gap: 8px; }
 
 .hidden { display: none; }
@@ -46,3 +46,6 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
   50%  { box-shadow: 0 12px 36px rgba(0,176,255,0.18); transform: translateY(-4px) scale(1.03); }
   100% { box-shadow: 0 6px 16px rgba(59,47,214,0.18); transform: translateY(0) scale(1); }
 }
+
+.welcome-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+.welcome-panel { text-align: center; }
