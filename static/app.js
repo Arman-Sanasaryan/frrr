@@ -47,7 +47,7 @@
   }
 
   function showMain(name) {
-    greeting.textContent = `Hmmm, choOse... ${name}!`;
+    greeting.textContent = `Hello, ${name}! Choose a product:`;
     const overlay = document.getElementById('welcome-overlay');
     if (overlay) {
       overlay.classList.remove('overlay-in');
@@ -58,7 +58,7 @@
         if (sidebar) sidebar.style.display = '';
         document.querySelector('.main').style.display = '';
         const chatScreen = document.getElementById('chat-screen');
-        // if (chatScreen) chatScreen.style.display = '';
+        if (chatScreen) chatScreen.style.display = '';
         main.style.display = '';
         main.classList.remove('hidden');
         main.classList.add('main-enter');
@@ -82,7 +82,7 @@
     PRODUCTS.forEach(p => {
       const div = document.createElement('div');
       div.className = 'product';
-      div.innerHTML = `<h4>${p.name}</h4><p>Price: ${p.price} AMD</p><button data-id="${p.id}">Dis</button>`;
+      div.innerHTML = `<h4>${p.name}</h4><p>Цена: ${p.price} AMD</p><button data-id="${p.id}">Выбрать</button>`;
       productsEl.appendChild(div);
     });
     productsEl.querySelectorAll('button').forEach(btn => {
