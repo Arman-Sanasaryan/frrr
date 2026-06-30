@@ -57,8 +57,8 @@
         const sidebar = document.querySelector('.sidebar');
         if (sidebar) sidebar.style.display = '';
         document.querySelector('.main').style.display = '';
-        const chatScreen = document.getElementById('chat-screen');
-        if (chatScreen) chatScreen.style.display = '';
+        // const chatScreen = document.getElementById('chat-screen');
+        // if (chatScreen) chatScreen.style.display = '';
         main.style.display = '';
         main.classList.remove('hidden');
         main.classList.add('main-enter');
@@ -69,8 +69,8 @@
       const sidebar = document.querySelector('.sidebar');
       if (sidebar) sidebar.style.display = '';
       document.querySelector('.main').style.display = '';
-      const chatScreen = document.getElementById('chat-screen');
-      if (chatScreen) chatScreen.style.display = '';
+      // const chatScreen = document.getElementById('chat-screen');
+      // if (chatScreen) chatScreen.style.display = '';
       main.style.display = '';
       main.classList.remove('hidden');
       renderProducts();
